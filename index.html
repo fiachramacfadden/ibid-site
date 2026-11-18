@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ibid: highlight, underline and annotate any website</title>
+<meta name="description" content="Highlight, underline and annotate any website. Come back next week or next year and it’s all still there – just like an old book. ibid is a browser for Mac.">
+<link rel="canonical" href="https://tryibid.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tryibid.com/">
+<meta property="og:title" content="ibid: highlight, underline and annotate any website">
+<meta property="og:description" content="Highlight, underline and annotate any website. Come back next week or next year and it’s all still there – just like an old book. ibid is a browser for Mac.">
+<meta property="og:image" content="https://tryibid.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<style>
+  @property --fa { syntax: "<length>"; inherits: true; initial-value: 0px; }
+  @property --fb { syntax: "<length>"; inherits: true; initial-value: 0px; }
+  :root {
+    --ink: #1D1D1F; --grey: #6E6E73; --rule: rgba(0,0,0,.1); --honey: #FBE38E; --sky: #BFE3F5; --red: #E6332B; --desk: #F1F1F1;
+    --serif: ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --sans: -apple-system, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+    --w: max(760px, min(1180px, 92vw));
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body { background: #fff; color: var(--ink); font-family: var(--hf, var(--sans)); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow: hidden; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  p { text-wrap: pretty; }
+
+  /* ---------- The page: words, one button, and the window rising from the foot of the screen ---------- */
+  main { height: 100svh; min-height: 560px; display: flex; flex-direction: column; }
+  .brand { position: absolute; left: 28px; top: 22px; display: inline-flex; align-items: center; gap: 9px; font-size: 19px; font-weight: 600; letter-spacing: -0.02em; font-family: var(--lf, var(--hf)); }
+  .brand img { width: 28px; height: 28px; }
+  .words { flex: none; text-align: center; padding: clamp(58px, 8.5svh, 112px) 24px 0; }
+  h1 { font-family: var(--hf); font-size: var(--hs); font-weight: var(--hw); letter-spacing: var(--ht); line-height: var(--hl, 1.04); text-transform: var(--hc, none); text-wrap: balance; max-width: 15em; margin: 0 auto; }
+  h1 mark { background: linear-gradient(var(--honey), var(--honey)) no-repeat 0 58% / 100% 76%; color: inherit; border-radius: .08em; padding: 0 .09em; margin: 0 -.09em; }
+  h1 u { text-decoration: underline var(--red) .05em; text-underline-offset: .13em; }
+  h1 em { font-style: normal; color: #A1A1A6; }
+  h1 b { font-weight: inherit; }
+  .lede { color: var(--grey); font-family: var(--lf, var(--hf)); font-size: clamp(16px, 1.35vw, 20px); font-weight: 400; line-height: 1.45; max-width: 31em; margin: clamp(12px, 2svh, 18px) auto 0; letter-spacing: var(--lt, -0.01em); }
+  .act { margin-top: clamp(18px, 2.8svh, 26px); }
+  .get { display: inline-flex; align-items: center; gap: 9px; height: 44px; padding: 0 22px; border-radius: 22px; background: var(--ink); color: #fff; font-family: var(--lf, var(--hf)); font-size: 15.5px; font-weight: 500; letter-spacing: -0.005em; text-decoration: none; transition: transform .16s ease-out, background .16s ease-out; }
+  .get svg { width: 15px; height: 15px; }
+  .get:active { transform: scale(.97); }
+  @media (hover: hover) { .get:hover { background: #000; } }
+  .get:focus-visible, .ibid button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .small { color: var(--grey); font-size: 13px; margin-top: 12px; font-family: var(--sans); letter-spacing: -0.003em; }
+  .stage { flex: 1; min-height: 0; margin-top: clamp(24px, 4.4svh, 56px); padding: 0 0 0 max(4vw, calc((100vw - var(--w)) / 2)); }
+
+  .panel { height: 100%; }
+  /* ---------- ibid's window, drawn by the page, to try ---------- */
+  .ibid { width: var(--w); height: 100%; container-type: inline-size; position: relative; user-select: none; -webkit-user-select: none; }
+  /* The window's outline and the shadow it casts are drawn as one shape behind it, cut to the same smooth corners. */
+  .halo { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .halo .cast { fill: rgba(0,0,0,.2); }
+  .halo .edge { fill: #fff; stroke: rgba(0,0,0,.16); stroke-width: 1.5; }
+  .in { position: relative; }
+  /* Measured from the app: 1em here is 16 points of a window 1240 points wide. The frame round the page is
+     six points of grey, #F4F4F4 at the window's edge to #F0F0F0 at the page's. */
+  .in { font-size: 1.2903cqw; height: 100%; display: flex; flex-direction: column; border-radius: inherit; overflow: hidden; font-family: var(--serif);
+    background: linear-gradient(to right, #F4F4F4, #F0F0F0 .375em, #F0F0F0 calc(100% - .375em), #F4F4F4); }
+  /* The row is 64 points: white for its upper half, then falling away to the grey the page lies on. */
+  .row { height: 4em; flex: none; display: flex; align-items: center; padding: 0 .9em 0 1.25em; gap: .5em;
+    background: linear-gradient(#fff 46%, #FDFDFD 62%, #FAFAFA 75%, #F7F7F7 85%, #F3F3F3 94%, #F0F0F0); }
+  /* The Mac's own lights: 14 points across, 23 from centre to centre, glyphs when the pointer is over any of them. */
+  .lights { display: flex; gap: .5625em; margin-right: 1.45em; padding: .4em 0; }
+  .lights i { width: .875em; height: .875em; border-radius: 50%; position: relative; display: block; }
+  .lights i svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+  .lights:hover i svg { opacity: 1; }
+  /* Their colours are as the screen shows them, so they're given in the screen's own colour space. */
+  .lights .c { background: linear-gradient(color(display-p3 0.910 0.455 0.404), color(display-p3 0.918 0.514 0.471) 50%, color(display-p3 0.910 0.573 0.537)); box-shadow: inset 0 0 0 .5px color(display-p3 0.710 0.043 0.039 / 0.5), 0 .05em .22em color(display-p3 0.910 0.455 0.404 / 0.3); }
+  .lights .m { background: linear-gradient(color(display-p3 0.953 0.745 0.318), color(display-p3 0.965 0.792 0.337) 50%, color(display-p3 0.976 0.843 0.396)); box-shadow: inset 0 0 0 .5px color(display-p3 0.690 0.431 0.031 / 0.55), 0 .05em .22em color(display-p3 0.953 0.745 0.318 / 0.3); }
+  .lights .z { background: linear-gradient(color(display-p3 0.471 0.761 0.282), color(display-p3 0.580 0.827 0.416) 50%, color(display-p3 0.675 0.867 0.537)); box-shadow: inset 0 0 0 .5px color(display-p3 0.035 0.325 0.035 / 0.45), 0 .05em .22em color(display-p3 0.471 0.761 0.282 / 0.3); }
+  .tab { display: flex; align-items: center; gap: .5em; height: 2.375em; padding: 0 .625em; width: 11.25em; font-size: .845em; font-weight: 500; color: rgba(30,30,30,.5); transition: color .12s ease-out; text-align: left; }
+  .tab span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+  .tab[aria-selected="true"] { color: #1e1e1e; font-weight: 600; }
+  @media (hover: hover) { .tab:hover { color: #1e1e1e; } }
+  .fav { width: 1.185em; height: 1.185em; border-radius: .26em; flex: none; display: grid; place-items: center; font: 700 .74em/1 Georgia, serif; color: #fff; }
+  .dot { width: .44em; height: .44em; border-radius: 50%; background: #FFD14D; flex: none; }
+  .glyphs { margin-left: auto; display: flex; align-items: center; gap: 1.4em; padding-right: .55em; pointer-events: none; opacity: .82; }
+  .glyphs svg { width: 1.6em; height: 1.6em; display: block; }
+  .plus svg { width: 1.3em; height: 1.3em; display: block; }
+  .plus { margin-left: .5em; pointer-events: none; opacity: .75; }
+  .desk { flex: 1; position: relative; margin: 0 .375em; min-height: 0; transition: --fa .42s cubic-bezier(.3,.7,.2,1), --fb .42s cubic-bezier(.3,.7,.2,1) .07s; }
+  /* The sheet's soft shadow follows its cut corner, so the page lies on the desk as one piece. */
+  .lift { position: absolute; inset: 0; border-radius: .875em .875em 0 0; overflow: hidden; }
+  .sheet { position: absolute; inset: 0; overflow: hidden; background: var(--paper, #fff);
+    clip-path: polygon(0 0, calc(100% - var(--fa)) 0, 100% var(--fb), 100% 100%, 0 100%); }
+  .desk.kept { --fa: 3.5em; --fb: 3.5em; }
+  @media (prefers-reduced-motion: reduce) { .desk { transition: none; } }
+  /* The corner turned over: the back of the page's own paper, lying on the page. It is one exact shape,
+     from the very point where the crease leaves the top edge to the very point where it meets the side,
+     and its shadow falls on the page only, never out over the desk where the corner used to be. */
+  .earclip { position: absolute; right: 0; top: 0; width: calc(var(--fa) + 3em); height: calc(var(--fb) + 3em); pointer-events: none;
+    clip-path: polygon(0 0, 3em 0, 100% calc(100% - 3em), 100% 100%, 0 100%); }
+  .ear { position: absolute; right: 0; top: 0; width: var(--fa); height: var(--fb); display: block; overflow: visible; filter: drop-shadow(-.1em .2em .3em rgba(0,0,0,.2)); }
+  .ear path { pointer-events: auto; cursor: pointer; }
+  .desk.flat .earclip { display: none; }
+  .ear .near { stop-color: color-mix(in srgb, var(--paper, #fff), #000 13%); }
+  .ear .mid { stop-color: color-mix(in srgb, var(--paper, #fff), #000 3%); }
+  .ear .far { stop-color: var(--paper, #fff); }
+  .page { display: none; height: 100%; font-size: .93em; cursor: text; user-select: text; -webkit-user-select: text; }
+  .page.on { display: block; }
+  .page ::selection { background: var(--honey); }
+  ::highlight(ibid) { background-color: var(--honey); }
+  .page mark { color: inherit; border-radius: .2em; padding: .08em .14em; margin: 0 -.14em; box-decoration-break: clone; -webkit-box-decoration-break: clone; background: var(--honey); }
+  .page mark.sky { background: var(--sky); }
+  .page u { text-decoration: underline var(--red) .1em; text-underline-offset: .2em; }
+  .noted { position: relative; }
+  .note { position: absolute; left: calc(100% + 2.2em); top: var(--at, 0); width: 14em; font-family: var(--serif); font-size: .84em; font-style: normal; line-height: 1.4; color: #3a3a3a; background: #fff; border: 1px solid var(--rule); border-radius: .5em; padding: .65em .8em .65em 1.4em; user-select: none; -webkit-user-select: none; letter-spacing: 0; text-align: left; }
+  .note::before { content: ""; position: absolute; left: .6em; top: .65em; bottom: .65em; width: .2em; border-radius: .1em; background: var(--tick, #F6D56A); }
+  /* The address floats at the foot of what can be seen of the page, as it does in ibid. */
+  .addr { position: absolute; left: 50%; bottom: 1.1em; transform: translateX(-50%); width: 25em; height: 2.75em; border-radius: 1.375em; display: flex; align-items: center; gap: 1em; padding: 0 1.1em;
+    background: rgba(255,255,255,.72); -webkit-backdrop-filter: blur(1.2em) saturate(1.7); backdrop-filter: blur(1.2em) saturate(1.7); box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 .5em 1.8em rgba(0,0,0,.14); }
+  .addr svg { width: 1.2em; height: 1.2em; display: block; }
+  .addr .nav { opacity: .75; pointer-events: none; } .addr .nav + .nav { opacity: .3; }
+  .addr .host { flex: 1; display: flex; align-items: center; gap: .45em; font-size: .845em; font-weight: 600; padding-left: .6em; color: #1e1e1e; }
+  .addr .host svg { width: .82em; height: .82em; opacity: .45; }
+  .addr .keep { padding: .4em; margin: -.4em; border-radius: 50%; transition: transform .16s ease-out; }
+  .addr .keep:active { transform: scale(.9); }
+  .addr .keep .fill { opacity: 0; transition: opacity .15s; } .kept .addr .keep .fill { opacity: 1; }
+  .addr .re { opacity: .75; pointer-events: none; }
+
+  /* The three websites, each in something like its own dress. */
+  .nyt { --paper: #fff; font-family: Georgia, "Times New Roman", serif; }
+  .nyt .mast { text-align: center; font: 700 1.05em/1 Georgia, serif; letter-spacing: .01em; padding: 1em 0 .9em; border-bottom: 1px solid #dcdcdc; margin: 0 2.4em; }
+  .nyt .col { width: 44em; margin: 1.7em auto 0; transform: translateX(-5em); }
+  .nyt h2 { font: italic 700 1.72em/1.14 Georgia, serif; letter-spacing: -.01em; margin-bottom: .75em; }
+  .nyt p { font-size: 1.22em; line-height: 1.56; margin-bottom: .95em; color: #222; }
+  .aeon { --paper: #fff; }
+  .aeon .mast { padding: .9em 2.6em .6em; font: 700 1.8em/1 var(--serif); letter-spacing: -.04em; color: #8E1A1D; }
+  .aeon .col { width: 38em; margin: .8em auto 0; transform: translateX(-5.5em); }
+  .aeon h2 { font: 500 2.1em/1.1 var(--serif); letter-spacing: -.02em; margin-bottom: .7em; }
+  .aeon p { font-size: 1.2em; line-height: 1.58; margin-bottom: 1em; }
+  .quanta { --paper: #E6F0EC; font-family: Georgia, serif; }
+  .quanta .mast { background: #fff; padding: 1.1em 2.4em; font: 700 .98em/1 Georgia, serif; border-bottom: 2px solid #b9d2c9; display: flex; gap: .9em; align-items: center; }
+  .quanta .mast b { font: 800 1.05em/1 var(--sans); letter-spacing: -.02em; color: #0c4b3d; }
+  .quanta .col { width: 36em; margin: 2em auto 0; transform: translateX(-5.5em); }
+  .quanta p { font-size: 1.17em; line-height: 1.68; margin-bottom: 1.25em; color: #1b2a26; }
+
+  /* ---------- The variations: their words and type are set from the script (V); these are the layouts ---------- */
+  /* Words at the left, as wide as the window beneath them. */
+  body.left .words, body.split .words { text-align: left; width: min(var(--w), 92vw); margin: 0 auto; padding-left: 0; padding-right: 0; }
+  body.left h1, body.split h1 { margin: 0; max-width: 21em; }
+  body.left .lede { margin-left: 0; }
+  body.left .act { display: flex; align-items: center; gap: 16px; margin-top: 22px; }
+  body.left .small { margin: 0; }
+  body.left .get { height: 40px; font-size: 14.5px; padding: 0 19px; }
+  /* The headline at the left and the button at the right, on one line. */
+  body.split .words { display: grid; grid-template-columns: 1fr auto; align-items: end; column-gap: 48px; }
+  body.split h1 { max-width: 13em; }
+  body.split .lede { grid-column: 1; margin-left: 0; }
+  body.split .act { grid-column: 2; grid-row: 1 / span 2; margin: 0 0 6px; text-align: right; }
+  /* One sentence in two tones: the headline in ink, the line running on from it in grey, at the same size. */
+  body.two h1, body.two .lede { font-size: var(--hs); line-height: 1.16; letter-spacing: var(--ht); font-weight: var(--hw); max-width: 23em; text-wrap: pretty; }
+  body.two .lede { color: #A1A1A6; margin-top: 0; max-width: 30em; }
+  @media (max-width: 900px) { br.wide { display: none; } }
+  body.two.split h1 { max-width: 23em; }
+  /* The window on a panel of its own. */
+  body.grey .panel, body.honey .panel { width: var(--w); padding: 3.2% 3.2% 0; border-radius: 12px 12px 0 0; background: #F4F4F4; }
+  body.honey .panel { background: #FBF4D6; }
+  body.grey .ibid, body.honey .ibid { width: 100%; }
+  body.grey .halo .cast, body.honey .halo .cast { opacity: .6; }
+  /* Other ways to offer the download. */
+  .get .gi, .get .gs { display: none; }
+  .get .gw { display: flex; flex-direction: column; text-align: left; line-height: 1.15; }
+  body.b-icon .get .gi { display: block; width: 24px; height: 24px; margin-left: -8px; }
+  body.b-icon .get svg { display: none; }
+  body.b-white .get { background: #fff; color: var(--ink); box-shadow: 0 0 0 1px rgba(0,0,0,.14), 0 1px 2px rgba(0,0,0,.06); }
+  body.b-honey .get { background: var(--honey); color: var(--ink); }
+  @media (hover: hover) { body.b-white .get:hover { background: #F5F5F5; } body.b-honey .get:hover { background: #F7D968; } }
+  body.b-two .get { height: 54px; border-radius: 14px; padding: 0 22px 0 16px; gap: 12px; font-size: 16px; }
+  body.b-two .get .gi { width: 32px; height: 32px; margin-left: -4px; }
+  body.b-two .get .gs { display: block; font-size: 11.5px; font-weight: 400; opacity: .62; margin-top: 2px; }
+  body.b-two .small, body.b-nav .small, body.b-link .small { display: none; }
+  body.b-link .get { background: none; color: var(--ink); height: auto; padding: 0; border-radius: 0; font-size: clamp(24px, 2.5vw, 36px); font-weight: 500; letter-spacing: var(--ht); gap: .3em;
+    text-decoration: underline var(--red) .07em; text-underline-offset: .16em; }
+  body.b-link .get svg { width: .62em; height: .62em; order: 2; }
+  body.b-link .act { margin-top: .5em; }
+  body.b-nav .act { position: absolute; right: 24px; top: 16px; margin: 0; }
+  body.b-nav .get { height: 36px; font-size: 14px; padding: 0 16px; gap: 7px; }
+  body.b-inline .act { display: none; }
+  .lede a { color: var(--ink); text-decoration: none; white-space: nowrap; border-radius: .14em; padding: 0 .12em; margin: 0 -.12em;
+    background: linear-gradient(var(--honey), var(--honey)) no-repeat 0 62% / 100% 78%; }
+  @media (hover: hover) { .lede a:hover { background-size: 100% 100%; background-position: 0 50%; } }
+  /* The button's corners and fill. */
+  body.r-10 .get { border-radius: 10px; }
+  body.r-6 .get { border-radius: 6px; }
+  body.b-grey .get { background: #E8E8ED; color: var(--ink); }
+  body.b-gloss .get { background: linear-gradient(#4A4A4D, #1D1D1F); box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.3), 0 5px 12px rgba(0,0,0,.14); }
+  body.b-line .get { background: none; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  body.b-blue .get { background: #0071E3; }
+  @media (hover: hover) {
+    body.b-grey .get:hover { background: #DEDEE3; }
+    body.b-gloss .get:hover { background: linear-gradient(#3A3A3C, #111); }
+    body.b-line .get:hover { background: var(--ink); color: #fff; }
+    body.b-blue .get:hover { background: #0077ED; }
+  }
+  /* The window without a panel: on white or pale grey, with different shadows. */
+  body.pg { background: #F5F5F7; }
+  body.s-deep .halo .cast { fill: rgba(0,0,0,.5); }
+  body.s-none .halo .cast { display: none; }
+  body.s-glow .halo .cast { fill: rgba(246,200,60,.6); }
+  /* Other places for the icon. */
+  .bigicon { display: none; width: 60px; height: 60px; margin: 0 0 16px -4px; }
+  body.l-big .bigicon { display: block; }
+  body.l-big .brand, body.l-in .brand { display: none; }
+  body.l-big .words, body.l-in .words { padding-top: clamp(40px, 6svh, 76px); }
+  h1 img.ii { width: 1.12em; height: 1.12em; vertical-align: -.24em; margin: 0 .22em 0 -.06em; }
+  body.l-word .brand img { display: none; }
+
+  .pick:has(button:only-child) { display: none; }
+  .pick { position: fixed; left: 12px; bottom: 12px; z-index: 10; display: flex; gap: 5px; align-items: center; font: 600 12px var(--sans); }
+  .pick button { width: 25px; height: 25px; border-radius: 13px; border: 1px solid rgba(0,0,0,.18); background: #fff; }
+  .pick button[aria-pressed="true"] { background: #1e1e1e; color: #fff; }
+</style>
+</head>
+<body data-v="1">
+<main>
+  <span class="brand"><img src="icon.png" alt="">ibid</span>
+  <div class="words">
+    <img class="bigicon" src="icon.png" alt="">
+    <h1 id="head"></h1>
+    <p class="lede" id="lede"></p>
+    <div class="act">
+      <a class="get" href="https://github.com/fiachramacfadden/ibid-releases/releases/latest/download/ibid.dmg"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5v8M4.5 7.5 8 11l3.5-3.5M3 13.5h10"/></svg><img class="gi" src="icon.png" alt=""><span class="gw"><span class="gt" id="cta">Download for Mac</span><span class="gs">Free · macOS 15.2 or later</span></span></a>
+      <p class="small">Free · macOS 15.2 or later</p>
+    </div>
+  </div>
+
+  <div class="stage"><div class="panel">
+    <div class="ibid" role="group" aria-label="ibid, to try: switch tabs, highlight any words, and press the bookmark">
+      <svg class="halo" aria-hidden="true">
+        <defs><filter id="soft" x="-30%" y="-30%" width="160%" height="180%"><feGaussianBlur stdDeviation="30"/></filter></defs>
+        <path class="cast" filter="url(#soft)" transform="translate(0 26)"/><path class="edge"/>
+      </svg>
+      <div class="in">
+        <div class="row">
+          <div class="lights" aria-hidden="true">
+            <i class="c"><svg viewBox="0 0 14 14" fill="none" stroke="#6E0A04" stroke-opacity=".78" stroke-width="1.15" stroke-linecap="round"><path d="M4.55 4.55l4.9 4.9M9.45 4.55l-4.9 4.9"/></svg></i>
+            <i class="m"><svg viewBox="0 0 14 14" fill="none" stroke="#8A5200" stroke-opacity=".85" stroke-width="1.25" stroke-linecap="round"><path d="M3.7 7h6.6"/></svg></i>
+            <i class="z"><svg viewBox="0 0 14 14" fill="#0A560A" fill-opacity=".8"><path d="M3.9 3.9h4.5L3.9 8.4zM10.1 10.1H5.6l4.5-4.5z"/></svg></i>
+          </div>
+          <div role="tablist" style="display:flex;gap:.5em" id="tabs"></div>
+          <span class="plus" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="#1e1e1e" stroke-width="1.6" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg></span>
+          <div class="glyphs" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="#1e1e1e"><path d="M5.5 2.5h9a1 1 0 0 1 1 1v14L10 13.9l-5.5 3.6v-14a1 1 0 0 1 1-1z"/></svg>
+            <svg viewBox="0 0 20 20" fill="none" stroke="#1e1e1e" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M12.8 3.2l3.4 3.4-7.6 7.6-4.2.9.8-4.3z"/><path d="M3 18.3h14" stroke="#FFD14D" stroke-width="2.4"/></svg>
+            <svg viewBox="0 0 20 20" fill="#1e1e1e"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></svg>
+          </div>
+        </div>
+        <div class="desk" id="desk">
+          <div class="lift"><div class="sheet" id="sheet">
+            <article class="page nyt" data-host="nytimes.com">
+              <div class="mast">The New York Times Magazine</div>
+              <div class="col">
+                <h2>I Visited Big Bear Lake’s Famous Bald Eagles and Found Very Human Shenanigans</h2>
+                <p class="noted">It was the middle of winter, <mark>the sad dark stretch when the sun seems to set before it rises</mark>, when the snow outside is dishwater gray, and I was handling it the way I always do: vegetating under a mound of pillows, poking at my glowing screen, praying that the internet would serve me something good — not the usual toxic fire hose of spam, slop, bots, gambling ads and phishing links.<span class="note" style="--at:0em" data-note="0"></span></p>
+                <p>Instantly, a new world filled my screen. At the bottom, dominating the foreground, was the nest: a big messy tangle of sticks and branches. Behind that, stretching off to infinity, was a panoramic view that looked too good to be true: green forest, blue water, purple mountains. <u>It looked like a Renaissance painting of the Garden of Eden</u> — the sort of sun-splashed paradise the word “sublime” was invented to describe.</p>
+                <p>The feed seemed to have a good microphone, because as soon as I clicked, all the noises of the forest came pouring into my house: songbirds chirping, ravens croaking, woodpeckers hammering out their overlapping drum rolls — and, over it all, the constant roar of an oceanic wind, a big crashing whoosh that thrashed the treetops, so loud and harsh it sounded like fire.</p>
+              </div>
+            </article>
+            <article class="page aeon" data-host="aeon.co">
+              <div class="mast">aeon</div>
+              <div class="col">
+                <h2>Why the dilettante is the anti-hero of our over-optimised age</h2>
+                <p class="noted">Why, of all people, defend the dilettante? <mark>An amateur at best, a flighty rascal at worst</mark>: why take an interest in someone whose own interests are never more than a passing hobby? <u>These are serious times – why take seriously someone for whom nothing is serious?</u><span class="note" style="--at:0em" data-note="1"></span></p>
+                <p>Merriam-Webster defines the dilettante as ‘a person having a superficial interest in an art or a branch of knowledge’. Encyclopedia.com calls the dilettante someone who cultivates an interest ‘without real commitment or knowledge’. Cambridge settles for someone whose understanding ‘is not very deep or serious’. None of it is flattering.</p>
+                <p>Clearly, the dilettante is no aspirational character. No university markets itself as training the next generation of dilettantes; no magazine runs a ‘dilettante of the year’ issue (except, perhaps, for the excellent Idler publication). He – for the dilettante is, historically and in popular imagination, so often a ‘he’ – is in essence an amateur, a role defined by wide interests and narrow expertise.</p>
+              </div>
+            </article>
+            <article class="page quanta" data-host="quantamagazine.org">
+              <div class="mast"><b>Quanta</b> The Evolving Story of How Chemistry Became Biology</div>
+              <div class="col">
+                <p class="noted">Around 300 million years into the existence of our solar system, conditions on Earth were right for a great chemical experiment to begin. <u>Molecules entangled themselves in self-sustaining, self-reproducing loops.</u> Over time, these systems became more complex. <mark class="sky">At some point, they had come to life.</mark><span class="note" style="--at:3.2em;--tick:#8CCBEA" data-note="2"></span></p>
+                <p>Life invented new ways to move, and to capture, store, and use energy. It began to sense, respond to, and change its environment. It communicated, ate some of its neighbors and lived inside others, and formed complex, dynamic communities. Through cycles of birth, reproduction, and death; catastrophe; and bursts of evolution, it persisted and then thrived, taking over every corner of the planet.</p>
+                <p>Then, at some point, life gained a sense of itself, a reflective intelligence with the existential curiosity to ask: Where did we come from? For tens of thousands of years, we have pondered and probed the origins of life: Monks have meditated, philosophers have argued, lovers have mused, and parents have patiently answered their kids’ questions.</p>
+              </div>
+            </article>
+          </div></div>
+          <div class="earclip"><svg class="ear" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <defs><linearGradient id="earpaper" x1="50" y1="50" x2="0" y2="100" gradientUnits="userSpaceOnUse"><stop class="near" offset="0"/><stop class="mid" offset=".55"/><stop class="far" offset="1"/></linearGradient></defs>
+            <path id="ear" d="M0 0 L100 100 L9 100 Q0 100 0 91 Z" fill="url(#earpaper)"/>
+          </svg></div>
+          <div class="addr">
+            <svg class="nav" viewBox="0 0 20 20" fill="none" stroke="#1e1e1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 4l-6 6 6 6"/></svg>
+            <svg class="nav" viewBox="0 0 20 20" fill="none" stroke="#1e1e1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4l6 6-6 6"/></svg>
+            <span class="host"><svg viewBox="0 0 12 14" fill="#1e1e1e" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2h1v7H2V6zm1.5 0h3V4a1.5 1.5 0 0 0-3 0z"/></svg><span id="host"></span></span>
+            <button class="keep" id="keep" aria-label="Bookmark this page" aria-pressed="false"><svg viewBox="0 0 20 20" fill="none" stroke="#1e1e1e" stroke-width="1.5" stroke-linejoin="round"><path class="fill" fill="#1e1e1e" d="M5.5 3h9v14L10 14l-4.5 3z"/><path d="M5.5 3h9v14L10 14l-4.5 3z"/></svg></button>
+            <svg class="re" viewBox="0 0 20 20" fill="none" stroke="#1e1e1e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.5 10a5.5 5.5 0 1 1-1.7-4"/><path d="M14.2 2.8v3.4h-3.4"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</main>
+
+<div class="pick" id="pick"></div>
+
+<script>
+  // The three websites in the window. Each remembers whether it's bookmarked.
+  const TABS = [
+    { title: "I Visited Big Bear Lake’s Famous…", fav: "T", colour: "#111", kept: true },
+    { title: "Why the dilettante is the…", fav: "a", colour: "#8E1A1D", kept: false },
+    { title: "The Evolving Story of How…", fav: "Q", colour: "#2c6a5a", kept: false },
+  ];
+  // What's written in the margin: [New York Times, Aeon, Quanta].
+  const NOTES = ["Every January, without fail.", "Guilty. Happily.", "The whole mystery, in eight words."];
+  // Each variation's words, type and layout: f the face, w its weight, t its letter spacing, s its size;
+  // k its layout: "split" (headline left, button right), "left", "two" (one sentence in two tones), "grey" or "honey" (a panel).
+  const MID = "clamp(30px, min(3.9vw, 7svh), 56px)", SMALL = "clamp(24px, 2.5vw, 36px)";
+  const LEDE = "ibid is a browser for Mac. Whatever you write on a page is still there when you come back.";
+  const VERBS = "Highlight, underline and annotate any website. It’s all still there when you come back.";
+  const IS = "ibid is a browser for Mac.", DOES = "Highlight, underline and annotate any website.<br class=\"wide\"> Come back next week or next year and it’s all still there.";
+  const face = n => `"${n}", -apple-system, system-ui, sans-serif`;
+  const BASE = { f: "var(--sans)", w: 500, t: "-0.018em", s: SMALL };
+  const ICON = '<img class="ii" src="icon.png" alt="">';
+  const K = "left two l-big ";
+  const STAYS = "Come back next week or next year and it’s all still there.";
+  const B = "<br class=\"wide\"> ";
+  // Design 11 (the window on white with a soft shadow, black pill), with other words. The fifteen buttons and windows are in commit e64aa72.
+  // The chosen words (2026-11-18). The ten sets tried are in commit 003535e.
+  const V = [
+    ["Highlight, underline and annotate any website.", "Come back next week or next year" + B + "and it’s all still there – just like an old book."],
+  ].map(([head, lede]) => ({ ...BASE, head, lede, k: K }));
+
+  const $ = id => document.getElementById(id);
+  const pages = [...document.querySelectorAll(".page")];
+  let current = 0, flatten;
+
+  $("tabs").innerHTML = TABS.map((t, i) => `<button class="tab" role="tab" data-i="${i}"><i class="fav" style="background:${t.colour}">${t.fav}</i><span>${t.title}</span><i class="dot"></i></button>`).join("");
+  const tabs = [...document.querySelectorAll(".tab")];
+  document.querySelectorAll("[data-note]").forEach(e => e.textContent = NOTES[+e.dataset.note]);
+
+  function open(i) {
+    current = i;
+    tabs.forEach((t, n) => t.setAttribute("aria-selected", n == i));
+    pages.forEach((p, n) => p.classList.toggle("on", n == i));
+    $("host").textContent = pages[i].dataset.host;
+    $("desk").style.setProperty("--paper", getComputedStyle(pages[i]).getPropertyValue("--paper"));
+    // A tab's corner is simply as it was left: nothing folds on changing tabs.
+    $("desk").style.transition = "none";
+    keep(TABS[i].kept);
+    clearTimeout(flatten);
+    $("desk").classList.toggle("flat", !TABS[i].kept);
+    $("desk").offsetWidth;
+    $("desk").style.transition = "";
+  }
+  function keep(on) {
+    TABS[current].kept = on;
+    $("desk").classList.toggle("kept", on);
+    // A corner that has lain flat is taken away altogether, once it has finished unfolding.
+    clearTimeout(flatten);
+    if (on) $("desk").classList.remove("flat");
+    else flatten = setTimeout(() => $("desk").classList.add("flat"), 560);
+    $("keep").setAttribute("aria-pressed", on);
+    $("keep").setAttribute("aria-label", on ? "Remove the bookmark" : "Bookmark this page");
+  }
+  // Tabs change on the press, as ibid's do.
+  tabs.forEach(t => {
+    t.addEventListener("pointerdown", () => open(+t.dataset.i));
+    t.addEventListener("click", () => open(+t.dataset.i));
+  });
+  $("keep").addEventListener("click", () => keep(!TABS[current].kept));
+  $("ear").addEventListener("click", () => keep(false));
+
+  // Highlight any words on a page and they stay highlighted.
+  if (window.Highlight && CSS.highlights) {
+    const kept = new Highlight();
+    CSS.highlights.set("ibid", kept);
+    $("sheet").addEventListener("pointerup", () => {
+      const s = getSelection();
+      if (!s.rangeCount || s.isCollapsed || !$("sheet").contains(s.anchorNode)) return;
+      kept.add(s.getRangeAt(0).cloneRange());
+      s.removeAllRanges();
+    });
+  }
+  // Neither the page in the window nor the landing page scrolls, even when a selection is dragged past the foot.
+  for (const e of [$("sheet"), document.scrollingElement]) e.addEventListener("scroll", () => { e.scrollTop = 0; e.scrollLeft = 0; });
+  addEventListener("scroll", () => scrollTo(0, 0));
+
+  // The Mac rounds its corners with a smooth curve that eases into the edge, not a plain quarter circle,
+  // so the window (about 16 points) and the page (14 points, as in the app) are cut to that curve here.
+  function smooth(w, h, r) {
+    const a = 1.528665 * r, b = 1.08849 * r, c = .868407 * r, d = .631494 * r, e = .07491 * r, f = .372824 * r, g = .16906 * r;
+    return `M0 ${h}L0 ${a}C0 ${b} 0 ${c} ${e} ${d}C${g} ${f} ${f} ${g} ${d} ${e}C${c} 0 ${b} 0 ${a} 0`
+      + `L${w - a} 0C${w - b} 0 ${w - c} 0 ${w - d} ${e}C${w - f} ${g} ${w - g} ${f} ${w - e} ${d}C${w} ${c} ${w} ${b} ${w} ${a}L${w} ${h}Z`;
+  }
+  function corners() {
+    const win = document.querySelector(".in"), lift = document.querySelector(".lift");
+    const point = win.offsetWidth / 1240;
+    win.style.borderRadius = lift.style.borderRadius = "0";
+    const shape = smooth(win.offsetWidth, win.offsetHeight + 40, 16.4 * point);
+    win.style.clipPath = `path("${shape}")`;
+    document.querySelectorAll(".halo path").forEach(p => p.setAttribute("d", shape));
+    lift.style.clipPath = `path("${smooth(lift.offsetWidth, lift.offsetHeight + 40, 14 * point)}")`;
+  }
+  new ResizeObserver(corners).observe(document.querySelector(".in"));
+
+  function show(n) {
+    const v = V[n - 1];
+    document.body.dataset.v = n;
+    document.body.className = v.k;
+    const root = document.documentElement.style;
+    root.setProperty("--hf", v.f); root.setProperty("--hw", v.w); root.setProperty("--ht", v.t); root.setProperty("--hs", v.s);
+    root.setProperty("--hl", v.l || 1.04); root.setProperty("--hc", v.c || "none");
+    v.lf ? root.setProperty("--lf", v.lf) : root.removeProperty("--lf");
+    $("head").innerHTML = v.head;
+    $("lede").innerHTML = v.lede;
+    $("cta").textContent = v.cta || "Download for Mac";
+    const inline = $("lede").querySelector("a");
+    if (inline) inline.href = document.querySelector(".get").href;
+    $("pick").innerHTML = V.map((_, i) => `<button aria-pressed="${i + 1 == n}" onclick="show(${i + 1})">${i + 1}</button>`).join("");
+    document.fonts.ready.then(corners);
+    history.replaceState(null, "", "?v=" + n);
+    corners();
+  }
+  open(0);
+  show(Math.min(V.length, Math.max(1, +new URLSearchParams(location.search).get("v") || 1)));
+  addEventListener("keydown", e => { if (!e.metaKey && !e.ctrlKey && /^[1-9]$/.test(e.key)) show(+e.key); });
+</script>
+</body>
+</html>
