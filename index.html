@@ -82,9 +82,21 @@
   .plus svg { width: 1.3em; height: 1.3em; display: block; }
   .plus { margin-left: .5em; pointer-events: none; opacity: .75; }
   .desk { flex: 1; position: relative; margin: 0 .375em; min-height: 0; }
+  /* Scrolling down a page, the top row slides away and the page takes its room, six points of frame still above it;
+     the address slides off the foot; the frame fades to the page's own colour over 1.6 seconds, and back in half a
+     second when the row returns. The app's own timings (0.28 s for the slide). */
+  .row { transition: margin-top .28s cubic-bezier(.3,.75,.25,1), opacity .2s; }
+  .in.tucked .row { margin-top: -3.625em; opacity: 0; pointer-events: none; }
+  .in::before { content: ""; position: absolute; inset: 0; z-index: 0; background: var(--paper, #fff); opacity: 0; transition: opacity .5s; pointer-events: none; }
+  .in.tucked::before { opacity: 1; transition-duration: 1.6s; }
+  .addr { transition: transform .28s cubic-bezier(.3,.75,.25,1); }
+  .in.tucked .addr { transform: translateX(-50%) translateY(5em); }
+  @media (prefers-reduced-motion: reduce) { .row, .addr, .in::before { transition: none; } }
   /* The sheet's soft shadow follows its cut corner, so the page lies on the desk as one piece. */
   .lift { position: absolute; inset: 0; border-radius: .875em .875em 0 0; overflow: hidden; }
-  .sheet { position: absolute; inset: 0; overflow: hidden; background: var(--paper, #fff); }
+  /* The page scrolls inside its sheet, as a page does in ibid; the landing page itself never does. */
+  .sheet { position: absolute; inset: 0; overflow: hidden auto; overscroll-behavior: contain; scrollbar-width: none; background: var(--paper, #fff); }
+  .sheet::-webkit-scrollbar { display: none; }
   /* The corner turned over. The script works out its shape on every frame, as the app does: a crease from a
      point along the top edge to a point down the side, and the cut-off corner mirrored across it, so the flap is
      always the true back of the piece that was folded. Its shadow falls on the page only. */
@@ -93,7 +105,7 @@
   .fold .near { stop-color: color-mix(in srgb, var(--paper, #fff), #000 13%); }
   .fold .mid { stop-color: color-mix(in srgb, var(--paper, #fff), #000 3%); }
   .fold .far { stop-color: var(--paper, #fff); }
-  .page { display: none; height: 100%; font-size: .93em; cursor: text; user-select: text; -webkit-user-select: text; }
+  .page { display: none; font-size: .93em; cursor: text; user-select: text; -webkit-user-select: text; }
   .page.on { display: block; }
   .page ::selection { background: #CFE3FB; }
   /* A highlight, an underline, or words waiting for a colour: drawn behind the words alone, as ibid draws them. */
@@ -127,14 +139,29 @@
   .page mark.sky { background: var(--sky); }
   .page u { text-decoration: underline var(--red) .1em; text-underline-offset: .2em; }
   .noted { position: relative; }
-  .note { position: absolute; left: calc(100% + 2.2em); top: var(--at, 0); width: 14.6em; font: 400 1.2903cqw/1.4 var(--serif); color: #3a3a3a; background: #fff; border: 1px solid var(--rule); border-radius: .5em; padding: .6em .7em .6em 1.25em; letter-spacing: 0; text-align: left; text-decoration: none; text-transform: none; font-style: normal; }
-  .note::before { content: ""; position: absolute; left: .55em; top: .65em; bottom: .65em; width: .2em; border-radius: .1em; background: var(--tick, #F6D56A); }
-  .note .nw { display: block; font-size: .875em; outline: none; cursor: text; user-select: text; -webkit-user-select: text; min-height: 1.4em; }
-  .note .nw:empty::after { content: "Write a note"; color: #a8a8a8; }
+  /* A note in the margin, as ibid draws it (MarginNote): 230 points wide, 22 points right of the words, on the
+     app's near-white paper with a hairline; a 3-point bar in the highlight's colour; 15-point words; a soft shadow
+     only while it is being typed in; and a fine × at its corner when pointed at, which takes it away. */
+  .note { position: absolute; z-index: 2; width: 14.375em; display: flex; gap: .625em; padding: .375em .5625em; font: 400 1.2903cqw/1.3 var(--serif); color: rgba(0,0,0,.88);
+    background: #FAFAFA; border-radius: .25em; box-shadow: 0 0 0 .75px rgba(0,0,0,.14); transition: box-shadow .2s; animation: notein .24s ease-out;
+    letter-spacing: 0; text-align: left; text-decoration: none; text-transform: none; font-style: normal; white-space: normal; mix-blend-mode: normal; }
+  .note:focus-within { box-shadow: 0 0 0 .75px rgba(0,0,0,.14), 0 .1875em .625em rgba(0,0,0,.14); }
+  @keyframes notein { from { opacity: 0; transform: scale(.97); } }
+  .note::before { content: ""; flex: none; width: .1875em; border-radius: 1em; background: var(--tick, #FFE06B); }
+  .note .nb { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .4375em; }
+  .note .nw { display: block; font-size: .9375em; line-height: 1.4; min-height: 1.4em; outline: none; cursor: text; user-select: text; -webkit-user-select: text; }
+  .note .nw:empty::after { content: "Write in the margin…"; color: rgba(0,0,0,.3); }
+  .note .nw::selection { background: #B4D5FE; color: inherit; }
+  .note .nx { position: absolute; top: -.3125em; right: -.3125em; width: 1.625em; height: 1.625em; display: grid; place-items: center; font-size: .9375em; line-height: 1; color: #8a8a8a; opacity: 0; transition: opacity .2s; cursor: pointer; user-select: none; -webkit-user-select: none; }
+  .note:hover .nx { opacity: 1; }
+  .note .nx:active { transform: scale(.9); }
+  @media (prefers-reduced-motion: reduce) { .note { animation: none; } }
   /* A link in a note, as ibid draws it: the linked page's picture over its title and site, then a tick for each
      highlight already on that page; pressing the ticks unfolds those passages. Sizes are the app's, in points. */
-  .card { display: block; margin-top: .5em; background: #fff; border-radius: .4375em; box-shadow: 0 0 0 .75px rgba(0,0,0,.12); overflow: hidden; user-select: none; -webkit-user-select: none; cursor: pointer; }
+  .card { display: block; position: relative; background: #fff; border-radius: .4375em; box-shadow: 0 0 0 .75px rgba(0,0,0,.12); overflow: hidden; user-select: none; -webkit-user-select: none; cursor: pointer; }
   .card .cgo { display: block; }
+  .card .cx { position: absolute; top: .3125em; right: .3125em; width: 1.125em; height: 1.125em; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; font: 700 .7em/1 var(--sans); display: grid; place-items: center; opacity: 0; transition: opacity .2s; }
+  .note:hover .cx, .note:focus-within .cx { opacity: 1; }
   .card img { display: block; width: 100%; height: 6.5em; object-fit: cover; }
   .card .ct { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font: 500 .84375em/1.25 var(--serif); color: #1E1E1E; padding: .6em .6em 0; }
   .card .cs { display: flex; align-items: center; gap: .4em; font: 400 .72em/1.2 var(--serif); color: #7A7A7A; padding: .28em .7em .7em; }
@@ -165,12 +192,19 @@
      line's width. So the page is the Times's to the pixel, and its words can still be highlighted. --u is one of
      the real page's points. */
   .shot { --paper: #fff; --u: .080645cqw; font-size: 1em; position: relative; }
-  .shot .bg { position: absolute; left: 0; top: 0; width: 100%; display: block; pointer-events: none; user-select: none; -webkit-user-select: none; }
+  .shot.on { height: calc(var(--ph) * var(--u)); }
+  /* What the real page keeps pinned to its top (the Times's slim bar, Noema's masthead) stays put as the page scrolls:
+     the same drawing again, cut to the bar's height. */
+  .shot .stick { position: sticky; top: 0; z-index: 3; height: calc(var(--hh) * var(--u)); margin-bottom: calc(var(--hh) * var(--u) * -1); overflow: hidden; pointer-events: none; }
+  .shot .stick img { display: block; width: 100%; margin-top: calc(var(--cut, 0) * var(--u) * -1); }
+  /* --cut trims a few points off the top of a capture (Noema's masthead leaves a slit above itself that shows the words passing under it). */
+  .shot .ln.ss { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  .shot .bg { position: absolute; left: 0; top: calc(var(--cut, 0) * var(--u) * -1); width: 100%; display: block; pointer-events: none; user-select: none; -webkit-user-select: none; }
   .shot .col { position: absolute; inset: 0; }
   .shot .col p { position: absolute; margin: 0; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); width: calc(var(--w) * var(--u)); height: calc(var(--h) * var(--u)); }
   .shot .ln { position: absolute; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); white-space: nowrap; color: transparent;
     font: calc(var(--f) * var(--u))/calc(var(--h) * var(--u)) Georgia, "Times New Roman", serif; }
-  .shot ::selection { background: rgba(70,140,255,.28); color: transparent; }
+  .shot .ln::selection, .shot .ln *::selection { background: rgba(70,140,255,.28); color: transparent; }
   .shot .hl { mix-blend-mode: multiply; padding: 0; box-shadow: .1em 0 0 var(--c, transparent), -.1em 0 0 var(--c, transparent); }
   .shot .hl.line { text-decoration-skip-ink: none; -webkit-text-decoration-skip: none; }
   /* The other real websites, each from a few values: paper, masthead, headline and body type. */
@@ -321,7 +355,8 @@
         </div>
         <div class="desk" id="desk">
           <div class="lift"><div class="sheet" id="sheet">
-            <article class="page shot" data-key="brain" data-host="nytimes.com">
+            <article class="page shot" data-key="brain" data-host="nytimes.com" style="--ph:3600;--hh:58">
+              <div class="stick"><img src="times-brain.svg" alt="" draggable="false"></div>
               <img class="bg" src="times-brain.svg" alt="" draggable="false">
               <div class="col">
                 <p style="--x:314;--y:207;--w:600;--h:120"><span class="ln" style="--x:0;--y:5;--w:584.19;--f:20;--h:20">On a recent Thursday, J. Galen Buckwalter drove 15 minutes from </span><span class="ln" style="--x:0;--y:35;--w:543.17;--f:20;--h:20">his home to the California Institute of Technology, steered his </span><span class="ln" style="--x:0;--y:65;--w:571.16;--f:20;--h:20">wheelchair into a laboratory and, as he had twice a week for two </span><span class="ln" style="--x:0;--y:95;--w:240.73;--f:20;--h:20">years, plugged in his brain. </span></p>
@@ -332,26 +367,49 @@
                 <p style="--x:314;--y:733;--w:600;--h:30"><span class="ln" style="--x:0;--y:5;--w:456.91;--f:20;--h:20">“That’s nice,” Buckwalter said, admiring the image. </span></p>
                 <p style="--x:314;--y:778;--w:600;--h:210"><span class="ln" style="--x:0;--y:5;--w:562.11;--f:20;--h:20">Those neural signals may prove to be hugely valuable. Already, </span><span class="ln" style="--x:0;--y:35;--w:572.58;--f:20;--h:20">brain-computer interfaces have enabled people with paralysis to </span><span class="ln" style="--x:0;--y:65;--w:578.45;--f:20;--h:20">fly drones and helped people who have lost the ability to speak to </span><span class="ln" style="--x:0;--y:95;--w:587.33;--f:20;--h:20">communicate — using just their thoughts. Eventually, researchers </span><span class="ln" style="--x:0;--y:125;--w:559.89;--f:20;--h:20">say, they could allow the regulation of emotions such as pain or </span><span class="ln" style="--x:0;--y:155;--w:596.52;--f:20;--h:20">fear; the instant transfer of knowledge, such as a new language; or </span><span class="ln" style="--x:0;--y:185;--w:566.47;--f:20;--h:20">the merging of human consciousness with artificial intelligence. </span></p>
                 <p style="--x:314;--y:1003;--w:600;--h:150"><span class="ln" style="--x:0;--y:5;--w:582.17;--f:20;--h:20">Buckwalter, 70, was almost totally paralyzed from the chest down </span><span class="ln" style="--x:0;--y:35;--w:552.3;--f:20;--h:20">after a diving accident in his teens. He signed up for the study, </span><span class="ln" style="--x:0;--y:65;--w:531.53;--f:20;--h:20">conducted jointly by Caltech and the University of Southern </span><span class="ln" style="--x:0;--y:95;--w:562.09;--f:20;--h:20">California, because he wanted to make life better for others like </span><span class="ln" style="--x:0;--y:125;--w:39.22;--f:20;--h:20">him. </span></p>
+                <p style="--x:314;--y:2660.97;--w:600;--h:120"><span class="ln" style="--x:0;--y:5;--w:563.23;--f:20;--h:20">Also, he was curious. After a distinguished career as a research </span><span class="ln" style="--x:0;--y:35;--w:585.3;--f:20;--h:20">scientist at U.S.C., he had developed the matching algorithms that </span><span class="ln" style="--x:0;--y:65;--w:499.38;--f:20;--h:20">powered eHarmony, the dating website. He later started </span><span class="ln" style="--x:0;--y:95;--w:591.38;--f:20;--h:20">companies that tried to use data to understand human psychology. </span></p>
+                <p style="--x:314;--y:2796.97;--w:600;--h:150"><span class="ln" style="--x:0;--y:5;--w:585.55;--f:20;--h:20">Now he had a chance to get an up-close, never-before-seen look at </span><span class="ln" style="--x:0;--y:35;--w:592.66;--f:20;--h:20">the brain’s limits and potential. He imagined what he could do with </span><span class="ln" style="--x:0;--y:65;--w:540.23;--f:20;--h:20">the information Caltech would collect: run new experiments, </span><span class="ln" style="--x:0;--y:95;--w:581.8;--f:20;--h:20">supercharge his companies, learn more about himself and human </span><span class="ln" style="--x:0;--y:125;--w:90.7;--f:20;--h:20">resilience. </span></p>
+                <p style="--x:314;--y:2961.97;--w:600;--h:90"><span class="ln" style="--x:0;--y:5;--w:576.89;--f:20;--h:20">But when he asked the researchers for access to the data — after </span><span class="ln" style="--x:0;--y:35;--w:584.72;--f:20;--h:20">the craniotomy, after weeks of recovery, after hours upon hours in </span><span class="ln" style="--x:0;--y:65;--w:201.38;--f:20;--h:20">the lab — they said no. </span></p>
+                <p style="--x:314;--y:3066.97;--w:600;--h:60"><span class="ln" style="--x:0;--y:5;--w:575.86;--f:20;--h:20">The output from his brain belonged to the researchers, they said, </span><span class="ln" style="--x:0;--y:35;--w:94.97;--f:20;--h:20">not to him. </span></p>
+                <p style="--x:314;--y:3141.97;--w:600;--h:180"><span class="ln" style="--x:0;--y:5;--w:582.03;--f:20;--h:20">Today, the argument over who controls some of the most intimate </span><span class="ln" style="--x:0;--y:35;--w:572.61;--f:20;--h:20">information about us — what we buy, where we travel, whom we </span><span class="ln" style="--x:0;--y:65;--w:552.86;--f:20;--h:20">text — has become familiar, even tired. But little has been said </span><span class="ln" style="--x:0;--y:95;--w:592.88;--f:20;--h:20">about brain data. That is largely because that data has seemed like </span><span class="ln" style="--x:0;--y:125;--w:588.81;--f:20;--h:20">the stuff of science fiction, accessible only to scientists armed with </span><span class="ln" style="--x:0;--y:155;--w:286.52;--f:20;--h:20">the most specialized technology. </span></p>
+                <p style="--x:314;--y:3336.97;--w:600;--h:240"><span class="ln" style="--x:0;--y:5;--w:579.36;--f:20;--h:20">But that is quickly changing. Researchers and private companies </span><span class="ln" style="--x:0;--y:35;--w:548.66;--f:20;--h:20">are exploring other applications of brain-computer interfaces, </span><span class="ln" style="--x:0;--y:65;--w:584.25;--f:20;--h:20">including wearable headsets and caps. Elon Musk has a company, </span><span class="ln" style="--x:0;--y:95;--w:576.59;--f:20;--h:20">Neuralink, that has already implanted more than a dozen people, </span><span class="ln" style="--x:0;--y:125;--w:563.69;--f:20;--h:20">and he has said he envisions a world where people can upgrade </span><span class="ln" style="--x:0;--y:155;--w:557.39;--f:20;--h:20">themselves by merging with computers. Someday, information </span><span class="ln" style="--x:0;--y:185;--w:573.73;--f:20;--h:20">about how we think, what we fear and the essence of who we are </span><span class="ln" style="--x:0;--y:215;--w:519.39;--f:20;--h:20">could be as accessible as our shopping history on Amazon. </span></p>
               </div>
             </article>
-            <article class="page site s-noema" data-key="noema" data-host="noemamag.com">
-              <div class="mast">Noema</div>
+            <article class="page shot" data-key="noema" data-host="noemamag.com" style="--ph:3594;--hh:74;--cut:6">
+              <div class="stick"><img src="page-noema.svg" alt="" draggable="false"></div>
+              <img class="bg" src="page-noema.svg" alt="" draggable="false">
               <div class="col">
-                <h2>The Mythology Of Conscious AI</h2>
-                <h3>Why consciousness is more likely a property of life than of computation and why creating conscious, or even conscious-seeming AI, is a bad idea.</h3>
-                <p>For centuries, people have fantasized about playing God by creating artificial versions of human beings. This is a dream reinvented with every breaking wave of new technology. With genetic engineering came the prospect of human cloning, and with robotics that of humanlike androids.</p>
-                <p>The rise of artificial intelligence (AI) is another breaking wave — potentially a tsunami. The AI systems we have around us are arguably already intelligent, at least in some ways. They will surely get smarter still. But are they, or could they ever be, conscious? And why would that matter?</p>
-                <p>The cultural history of synthetic consciousness is both long and mostly unhappy. From Yossele the Golem, to Mary Shelley’s “Frankenstein,” HAL 9000 in “2001: A Space Odyssey,” Ava in “Ex Machina,” and Klara in “Klara and The Sun,” the dream of creating artificial bodies and synthetic minds that both think and feel rarely ends well — at least, not for the humans involved. One thing we learn from these stories: If artificial intelligence is on a path toward real consciousness, or even toward systems that persuasively seem to be conscious, there’s plenty at stake — and not just disruption in job markets.</p>
+                <p style="--x:938.5;--y:145.36;--w:270;--h:132.81"><span class="ln" style="--x:0;--y:2.47;--w:187.3;--f:18;--h:21.59">Anil Seth won the 2025 </span><span class="ln" style="--x:0;--y:29.03;--w:238.33;--f:18;--h:21.59">annual Berggruen Prize Essay </span><span class="ln" style="--x:0;--y:55.59;--w:228.23;--f:18;--h:21.61">Competition for his English- </span><span class="ln" style="--x:0;--y:82.16;--w:257.94;--f:18;--h:21.59">language essay, “The Mythology </span><span class="ln" style="--x:0;--y:108.72;--w:144.61;--f:18;--h:21.61">Of Conscious AI.” </span></p>
+                <p style="--x:938.5;--y:296.17;--w:270;--h:265.62"><span class="ln" style="--x:0;--y:2.47;--w:266.72;--f:18;--h:21.59">A neuroscience professor and the </span><span class="ln" style="--x:0;--y:29.03;--w:199.58;--f:18;--h:21.59">director of the Centre for </span><span class="ln" style="--x:0;--y:55.59;--w:235.33;--f:18;--h:21.59">Consciousness Science at the </span><span class="ln" style="--x:0;--y:82.16;--w:262.36;--f:18;--h:21.59">University of Sussex, Seth is also </span><span class="ln" style="--x:0;--y:108.72;--w:251.31;--f:18;--h:21.59">the co-director of the Canadian </span><span class="ln" style="--x:0;--y:135.28;--w:256.34;--f:18;--h:21.59">Institute for Advanced Research </span><span class="ln" style="--x:0;--y:161.84;--w:228.81;--f:18;--h:21.59">Program on Brain, Mind and </span><span class="ln" style="--x:0;--y:188.41;--w:265;--f:18;--h:21.59">Consciousness. He wrote, “Being </span><span class="ln" style="--x:0;--y:214.97;--w:178.86;--f:18;--h:21.59">You: A New Science of </span><span class="ln" style="--x:0;--y:241.53;--w:253.73;--f:18;--h:21.59">Consciousness” (Dutton, 2021). </span></p>
+                <p style="--x:289.5;--y:143.36;--w:649;--h:154.92"><span class="ln" style="--x:0;--y:2.89;--w:550.03;--f:21;--h:25.19">For centuries, people have fantasized about playing God by </span><span class="ln" style="--x:0;--y:33.88;--w:555.73;--f:21;--h:25.19">creating artificial versions of human beings. This is a dream </span><span class="ln" style="--x:0;--y:64.86;--w:574.41;--f:21;--h:25.19">reinvented with every breaking wave of new technology. With </span><span class="ln" style="--x:0;--y:95.84;--w:571.72;--f:21;--h:25.19">genetic engineering came the prospect of human cloning, and </span><span class="ln" style="--x:0;--y:126.83;--w:388.03;--f:21;--h:25.19">with robotics that of humanlike androids. </span></p>
+                <p style="--x:289.5;--y:478.28;--w:649;--h:154.92"><span class="ln" style="--x:0;--y:2.89;--w:602.62;--f:21;--h:25.19">The rise of artificial intelligence (AI) is another breaking wave — </span><span class="ln" style="--x:0;--y:33.88;--w:564.95;--f:21;--h:25.19">potentially a tsunami. The AI systems we have around us are </span><span class="ln" style="--x:0;--y:64.86;--w:617.61;--f:21;--h:25.19">arguably already intelligent, at least in some ways. They will surely </span><span class="ln" style="--x:0;--y:95.84;--w:585.47;--f:21;--h:25.19">get smarter still. But are they, or could they ever be, conscious? </span><span class="ln" style="--x:0;--y:126.83;--w:266.47;--f:21;--h:25.19">And why would that matter? </span></p>
+                <p style="--x:289.5;--y:668.2;--w:649;--h:309.84"><span class="ln" style="--x:0;--y:2.89;--w:596.12;--f:21;--h:25.19">The cultural history of synthetic consciousness is both long and </span><span class="ln" style="--x:0;--y:33.88;--w:555.84;--f:21;--h:25.19">mostly unhappy. From Yossele the Golem, to Mary Shelley’s </span><span class="ln" style="--x:0;--y:64.86;--w:621.58;--f:21;--h:25.19">“Frankenstein,” HAL 9000 in “2001: A Space Odyssey,” Ava in “Ex </span><span class="ln" style="--x:0;--y:95.84;--w:623.53;--f:21;--h:25.19">Machina,” and Klara in “Klara and The Sun,” the dream of creating </span><span class="ln" style="--x:0;--y:126.83;--w:621.86;--f:21;--h:25.2">artificial bodies and synthetic minds that both think and feel rarely </span><span class="ln" style="--x:0;--y:157.81;--w:645.81;--f:21;--h:25.19">ends well — at least, not for the humans involved. One thing we learn </span><span class="ln" style="--x:0;--y:188.8;--w:613.12;--f:21;--h:25.19">from these stories: If artificial intelligence is on a path toward real </span><span class="ln" style="--x:0;--y:219.78;--w:633.44;--f:21;--h:25.19">consciousness, or even toward systems that persuasively seem to be </span><span class="ln" style="--x:0;--y:250.77;--w:609.5;--f:21;--h:25.19">conscious, there’s plenty at stake — and not just disruption in job </span><span class="ln" style="--x:0;--y:281.75;--w:80.68;--f:21;--h:25.2">markets. </span></p>
+                <p style="--x:289.5;--y:1013.05;--w:649;--h:247.88"><span class="ln" style="--x:0;--y:2.89;--w:631.86;--f:21;--h:25.19">Some people think conscious AI is already here. In a 2022 interview </span><span class="ln" style="--x:0;--y:33.88;--w:627.52;--f:21;--h:25.19">with The Washington Post, Google engineer Blake Lemoine made a </span><span class="ln" style="--x:0;--y:64.86;--w:604.94;--f:21;--h:25.19">startling claim about the AI system he was working on, a chatbot </span><span class="ln" style="--x:0;--y:95.84;--w:636.17;--f:21;--h:25.2">called LaMDA. He claimed it was conscious, that it had feelings, and </span><span class="ln" style="--x:0;--y:126.83;--w:598.52;--f:21;--h:25.19">was, in an important sense, like a real person. Despite a flurry of </span><span class="ln" style="--x:0;--y:157.81;--w:595.23;--f:21;--h:25.19">media coverage, Lemoine wasn’t taken all that seriously. Google </span><span class="ln" style="--x:0;--y:188.8;--w:607.2;--f:21;--h:25.19">dismissed him for violating its confidentiality policies, and the AI </span><span class="ln" style="--x:0;--y:219.78;--w:201.55;--f:21;--h:25.19">bandwagon rolled on. </span></p>
+                <p style="--x:289.5;--y:1295.92;--w:649;--h:371.81"><span class="ln" style="--x:0;--y:2.89;--w:607;--f:21;--h:25.19">But the question he raised has not gone away. Firing someone for </span><span class="ln" style="--x:0;--y:33.88;--w:600.28;--f:21;--h:25.19">breaching confidentiality is not the same as firing them for being </span><span class="ln" style="--x:0;--y:64.86;--w:598.33;--f:21;--h:25.19">wrong. As AI technologies continue to improve, questions about </span><span class="ln" style="--x:0;--y:95.84;--w:555.25;--f:21;--h:25.19">machine consciousness are increasingly being raised. David </span><span class="ln" style="--x:0;--y:126.83;--w:613.48;--f:21;--h:25.19">Chalmers, one of the foremost thinkers in this area, has suggested </span><span class="ln" style="--x:0;--y:157.81;--w:591.5;--f:21;--h:25.19">that conscious machines may be possible in the not-too-distant </span><span class="ln" style="--x:0;--y:188.8;--w:605.61;--f:21;--h:25.19">future. Geoffrey Hinton, a true AI pioneer and recent Nobel Prize </span><span class="ln" style="--x:0;--y:219.78;--w:630.69;--f:21;--h:25.19">winner, thinks they exist already. In late 2024, a group of prominent </span><span class="ln" style="--x:0;--y:250.77;--w:627.03;--f:21;--h:25.19">researchers wrote a widely publicized article about the need to take </span><span class="ln" style="--x:0;--y:281.75;--w:620.52;--f:21;--h:25.19">the welfare of AI systems seriously. For many leading experts in AI </span><span class="ln" style="--x:0;--y:312.73;--w:595.39;--f:21;--h:25.19">and neuroscience, the emergence of machine consciousness is a </span><span class="ln" style="--x:0;--y:343.72;--w:226.82;--f:21;--h:25.2">question of when, not if. </span></p>
+                <p style="--x:289.5;--y:1702.73;--w:649;--h:123.94"><span class="ln" style="--x:0;--y:2.89;--w:580.59;--f:21;--h:25.19">How we think about the prospects for conscious AI matters. It </span><span class="ln" style="--x:0;--y:33.88;--w:641.5;--f:21;--h:25.19">matters for the AI systems themselves, since — if they are conscious, </span><span class="ln" style="--x:0;--y:64.86;--w:607.92;--f:21;--h:25.19">whether now or in the future — with consciousness comes moral </span><span class="ln" style="--x:0;--y:95.84;--w:498.94;--f:21;--h:25.19">status, the potential for suffering and, perhaps, rights. </span></p>
+                <p style="--x:289.5;--y:1861.67;--w:649;--h:247.88"><span class="ln" style="--x:0;--y:2.89;--w:642.64;--f:21;--h:25.19">It matters for us too. What we collectively think about consciousness </span><span class="ln" style="--x:0;--y:33.88;--w:632.72;--f:21;--h:25.19">in AI already carries enormous importance, regardless of the reality. </span><span class="ln" style="--x:0;--y:64.86;--w:645.59;--f:21;--h:25.19">If we feel that our AI companions really feel things, our psychological </span><span class="ln" style="--x:0;--y:95.84;--w:626.89;--f:21;--h:25.19">vulnerabilities can be exploited, our ethical priorities distorted, and </span><span class="ln" style="--x:0;--y:126.83;--w:621.89;--f:21;--h:25.19">our minds brutalized — treating conscious-seeming machines as if </span><span class="ln" style="--x:0;--y:157.81;--w:617.41;--f:21;--h:25.19">they lack feelings is a psychologically unhealthy place to be. And if </span><span class="ln" style="--x:0;--y:188.8;--w:644.3;--f:21;--h:25.19">we do endow our AI creations with rights, we may not be able to turn </span><span class="ln" style="--x:0;--y:219.78;--w:429.31;--f:21;--h:25.19">them off, even if they act against our interests. </span></p>
+                <p style="--x:289.5;--y:2144.55;--w:649;--h:154.92"><span class="ln" style="--x:0;--y:2.89;--w:642.09;--f:21;--h:25.19">Perhaps most of all, the way we think about conscious AI matters for </span><span class="ln" style="--x:0;--y:33.88;--w:603.23;--f:21;--h:25.19">how we understand our own human nature and the nature of the </span><span class="ln" style="--x:0;--y:64.86;--w:647.44;--f:21;--h:25.19">conscious experiences that make our lives worth living. If we confuse </span><span class="ln" style="--x:0;--y:95.84;--w:573.14;--f:21;--h:25.19">ourselves too readily with our machine creations, we not only </span><span class="ln" style="--x:0;--y:126.83;--w:490.95;--f:21;--h:25.19">overestimate them, we also underestimate ourselves. </span></p>
+                <p style="--x:289.5;--y:2760.72;--w:649;--h:123.94"><span class="ln" style="--x:0;--y:2.89;--w:587.97;--f:21;--h:25.19">Why might we even think that AI could be conscious? After all, </span><span class="ln" style="--x:0;--y:33.88;--w:637.64;--f:21;--h:25.19">computers are very different from biological organisms, and the only </span><span class="ln" style="--x:0;--y:64.86;--w:627.5;--f:21;--h:25.19">things most people currently agree are conscious are made of meat, </span><span class="ln" style="--x:0;--y:95.84;--w:94.09;--f:21;--h:25.19">not metal. </span></p>
+                <p style="--x:289.5;--y:2919.66;--w:649;--h:154.92"><span class="ln" style="--x:0;--y:2.89;--w:637.11;--f:21;--h:25.19">The first reason lies within our own psychological infrastructure. As </span><span class="ln" style="--x:0;--y:33.88;--w:556.88;--f:21;--h:25.19">humans, we know we are conscious and like to think we are </span><span class="ln" style="--x:0;--y:64.86;--w:617.62;--f:21;--h:25.19">intelligent, so we find it natural to assume the two go together. But </span><span class="ln" style="--x:0;--y:95.84;--w:566.72;--f:21;--h:25.19">just because they go together in us doesn’t mean that they go </span><span class="ln" style="--x:0;--y:126.83;--w:179.89;--f:21;--h:25.2">together in general. </span></p>
+                <p style="--x:289.5;--y:3109.58;--w:649;--h:247.88"><span class="ln" style="--x:0;--y:2.89;--w:608.72;--f:21;--h:25.19">Intelligence and consciousness are different things. Intelligence is </span><span class="ln" style="--x:0;--y:33.88;--w:613.22;--f:21;--h:25.2">mainly about doing: solving a crossword puzzle, assembling some </span><span class="ln" style="--x:0;--y:64.86;--w:637.19;--f:21;--h:25.19">furniture, navigating a tricky family situation, walking to the shop — </span><span class="ln" style="--x:0;--y:95.84;--w:566.31;--f:21;--h:25.19">all involve intelligent behavior of some kind. A useful general </span><span class="ln" style="--x:0;--y:126.83;--w:609.86;--f:21;--h:25.19">definition of intelligence is the ability to achieve complex goals by </span><span class="ln" style="--x:0;--y:157.81;--w:627.02;--f:21;--h:25.19">flexible means. There are many other definitions out there, but they </span><span class="ln" style="--x:0;--y:188.8;--w:600.42;--f:21;--h:25.19">all emphasize the functional capacities of a system: the ability to </span><span class="ln" style="--x:0;--y:219.78;--w:459.61;--f:21;--h:25.2">transform inputs into outputs, to get things done. </span></p>
               </div>
             </article>
-            <article class="page site s-asterisk" data-key="asterisk" data-host="asteriskmag.com">
-              <div class="mast">Asterisk</div>
+            <article class="page shot" data-key="asterisk" data-host="asteriskmag.com" style="--ph:3520;--hh:0;--paper:#FAF8F0">
+              <img class="bg" src="page-asterisk.svg" alt="" draggable="false">
               <div class="col">
-                <h2>The Dream of an Aristotelian Machine</h2>
-                <h3>Why alignment science took a turn towards virtue ethics.</h3>
-                <p>One of the more interesting stories about Benjamin Franklin, told in his Autobiography, is his attempt to cultivate in himself 13 virtues. These were: temperance, silence, order, resolution, frugality, industry, sincerity, justice, moderation, cleanliness, tranquility, chastity, and humility. He should strive, he wrote, to “imitate Jesus and Socrates.”</p>
-                <p>The final virtue on Franklin’s list, humility, was a late addition — a Quaker friend informed him that he was generally thought proud, and that this pride often came across in conversation. He endeavored to cure himself of this folly, including it in his plan for self-examination.</p>
-                <p>But it is easy to wonder, reading his account of his own life, how much Franklin really accomplished in seeking to eradicate pride from his self-conception. He “[could not] boast of much success,” he wrote, “in acquiring the reality of this virtue, but [he] had a good deal with regard to the appearance of it.” This paid dividends. His affected modesty made others more readily accept his ideas, and he felt less embarrassed when he was mistaken. The virtues, for the great empiricist Franklin, were worth cultivating in part because of the practical advantages they seemed to confer.</p>
+                <p style="--x:307;--y:429.81;--w:614;--h:125"><span class="ln" style="--x:0;--y:0.03;--w:594.48;--f:18;--h:24.92">One of the more interesting stories about Benjamin Franklin, told in his </span><span class="ln" style="--x:0;--y:25.03;--w:612.97;--f:18;--h:24.92">Autobiography, is his attempt to cultivate in himself 13 virtues. These were: </span><span class="ln" style="--x:0;--y:50.03;--w:553.22;--f:18;--h:24.91">temperance, silence, order, resolution, frugality, industry, sincerity, </span><span class="ln" style="--x:0;--y:75.03;--w:576.72;--f:18;--h:24.91">justice, moderation, cleanliness, tranquility, chastity, and humility. He </span><span class="ln" style="--x:0;--y:100.03;--w:452.88;--f:18;--h:24.91">should strive, he wrote, to “imitate Jesus and Socrates.” </span></p>
+                <p style="--x:307;--y:572.81;--w:614;--h:100"><span class="ln" style="--x:0;--y:0.03;--w:549.92;--f:18;--h:24.91">The final virtue on Franklin’s list, humility, was a late addition — a </span><span class="ln" style="--x:0;--y:25.03;--w:579.06;--f:18;--h:24.91">Quaker friend informed him that he was generally thought proud, and </span><span class="ln" style="--x:0;--y:50.03;--w:597.12;--f:18;--h:24.91">that this pride often came across in conversation. He endeavored to cure </span><span class="ln" style="--x:0;--y:75.03;--w:535;--f:18;--h:24.91">himself of this folly, including it in his plan for self-examination. </span></p>
+                <p style="--x:307;--y:690.81;--w:614;--h:225"><span class="ln" style="--x:0;--y:0.03;--w:579.58;--f:18;--h:24.91">But it is easy to wonder, reading his account of his own life, how much </span><span class="ln" style="--x:0;--y:25.03;--w:593.95;--f:18;--h:24.91">Franklin really accomplished in seeking to eradicate pride from his self- </span><span class="ln" style="--x:0;--y:50.03;--w:533.41;--f:18;--h:24.91">conception. He “[could not] boast of much success,” he wrote, “in </span><span class="ln" style="--x:0;--y:75.03;--w:603.16;--f:18;--h:24.92">acquiring the reality of this virtue, but [he] had a good deal with regard to </span><span class="ln" style="--x:0;--y:100.03;--w:568.55;--f:18;--h:24.92">the appearance of it.” This paid dividends. His affected modesty made </span><span class="ln" style="--x:0;--y:125.03;--w:613.16;--f:18;--h:24.91">others more readily accept his ideas, and he felt less embarrassed when he </span><span class="ln" style="--x:0;--y:150.03;--w:593.8;--f:18;--h:24.91">was mistaken. The virtues, for the great empiricist Franklin, were worth </span><span class="ln" style="--x:0;--y:175.03;--w:573.69;--f:18;--h:24.91">cultivating in part because of the practical advantages they seemed to </span><span class="ln" style="--x:0;--y:200.04;--w:57.31;--f:18;--h:24.91">confer. </span></p>
+                <p style="--x:307;--y:933.81;--w:614;--h:250"><span class="ln" style="--x:0;--y:0.03;--w:567.36;--f:18;--h:24.91">In studying and seeking to perfect the virtues, Franklin was joining a </span><span class="ln" style="--x:0;--y:25.03;--w:570.69;--f:18;--h:24.91">tradition that dates back to Aristotle. It was Aristotle who offered the </span><span class="ln" style="--x:0;--y:50.03;--w:591.53;--f:18;--h:24.91">most influential systematic study of virtue as a locus for moral thought. </span><span class="ln" style="--x:0;--y:75.03;--w:531.59;--f:18;--h:24.91">Virtue enjoyed a central role in Western thought for roughly two </span><span class="ln" style="--x:0;--y:100.03;--w:577.69;--f:18;--h:24.91">millennia afterward, and then began, in the 18th and 19th centuries, to </span><span class="ln" style="--x:0;--y:125.03;--w:600.56;--f:18;--h:24.91">fade; it was only in the second half of the 20th century, through the work </span><span class="ln" style="--x:0;--y:150.03;--w:576.48;--f:18;--h:24.91">of philosophers like Elizabeth Anscombe and Alasdair MacIntyre, that </span><span class="ln" style="--x:0;--y:175.03;--w:581.92;--f:18;--h:24.91">virtue reemerged, now under the aegis of “virtue ethics” — a primarily </span><span class="ln" style="--x:0;--y:200.03;--w:608.86;--f:18;--h:24.91">neo-Aristotelian project critical of the wayward bent of moral theorists of </span><span class="ln" style="--x:0;--y:225.03;--w:74.55;--f:18;--h:24.91">the time. </span></p>
+                <p style="--x:307;--y:1201.81;--w:614;--h:150"><span class="ln" style="--x:0;--y:0.03;--w:563.22;--f:18;--h:24.91">Decades have passed since their seminal contributions, and it would </span><span class="ln" style="--x:0;--y:25.03;--w:552.45;--f:18;--h:24.91">seem, in our age seemingly so bereft of it, that “virtue” is having its </span><span class="ln" style="--x:0;--y:50.03;--w:570.47;--f:18;--h:24.92">moment once again. Jay Caspian Kang writes in The New Yorker of the </span><span class="ln" style="--x:0;--y:75.03;--w:547.3;--f:18;--h:24.92">“death of shame.” William Thibeau connects MacIntyre’s notion of </span><span class="ln" style="--x:0;--y:100.03;--w:612.75;--f:18;--h:24.91">“characters,” or “marks worn by moral philosophies,” to the moral calculus </span><span class="ln" style="--x:0;--y:125.03;--w:171.73;--f:18;--h:24.91">of effective altruism. </span></p>
+                <p style="--x:307;--y:1369.81;--w:614;--h:150"><span class="ln" style="--x:0;--y:0.03;--w:550.94;--f:18;--h:24.91">In a time of transition, when technological change seems bound to </span><span class="ln" style="--x:0;--y:25.03;--w:608.62;--f:18;--h:24.91">rewrite the rules of sociality and conviviality, we are reaching for virtue as </span><span class="ln" style="--x:0;--y:50.03;--w:587.86;--f:18;--h:24.91">one buoy to help us navigate troubled waters. That grasping is nowhere </span><span class="ln" style="--x:0;--y:75.03;--w:599.11;--f:18;--h:24.91">more apparent than in AI alignment, where it looks like we have to teach </span><span class="ln" style="--x:0;--y:100.03;--w:578.55;--f:18;--h:24.91">the systems we are creating how to be “good.” So we are rediscovering, </span><span class="ln" style="--x:0;--y:125.03;--w:446.22;--f:18;--h:24.91">under turbulent conditions, virtue. But will it help us? </span></p>
+                <p style="--x:307;--y:1621.81;--w:614;--h:150"><span class="ln" style="--x:0;--y:0.03;--w:608.27;--f:18;--h:24.91">AI alignment has always started with the question: If, one day, we develop </span><span class="ln" style="--x:0;--y:25.03;--w:581.38;--f:18;--h:24.91">superintelligent machines, how do we ensure they do what we actually </span><span class="ln" style="--x:0;--y:50.03;--w:564.09;--f:18;--h:24.91">want? In the field’s prehistory, Norbert Wiener warned that we must </span><span class="ln" style="--x:0;--y:75.03;--w:590.86;--f:18;--h:24.91">ensure the “purpose put into the machine” is the purpose that we really </span><span class="ln" style="--x:0;--y:100.03;--w:512.25;--f:18;--h:24.91">desire. If a powerful AI takes shortcuts to achieve our goals, or </span><span class="ln" style="--x:0;--y:125.03;--w:590.62;--f:18;--h:24.91">misunderstands what those goals are, it might have unintended effects. </span></p>
+                <p style="--x:307;--y:1789.81;--w:614;--h:200"><span class="ln" style="--x:0;--y:0.03;--w:595.84;--f:18;--h:24.91">Wiener’s concern reflected a specific idea of what a machine’s “purpose” </span><span class="ln" style="--x:0;--y:25.03;--w:558.72;--f:18;--h:24.91">could be. In 1943, Wiener, along with Arturo Rosenblueth and Julian </span><span class="ln" style="--x:0;--y:50.03;--w:533.53;--f:18;--h:24.92">Bigelow, explained that it was meaningful to call some machines </span><span class="ln" style="--x:0;--y:75.03;--w:574.08;--f:18;--h:24.91">purposeful, in that they behaved so as to reach a target state and were </span><span class="ln" style="--x:0;--y:100.03;--w:533.27;--f:18;--h:24.91">corrected by negative feedback. A thermostat, for instance, is not </span><span class="ln" style="--x:0;--y:125.03;--w:552.44;--f:18;--h:24.91">conscious, but could be accurately described as “trying to” reach 68 </span><span class="ln" style="--x:0;--y:150.03;--w:560.75;--f:18;--h:24.91">degrees by checking the current temperature, comparing it with the </span><span class="ln" style="--x:0;--y:175.03;--w:497;--f:18;--h:24.91">target temperature, and taking some action to close the gap. </span></p>
+                <p style="--x:307;--y:2007.81;--w:614;--h:175"><span class="ln" style="--x:0;--y:0.03;--w:588.67;--f:18;--h:24.91">This teleological view was soon applied to AI systems that might have a </span><span class="ln" style="--x:0;--y:25.03;--w:606.28;--f:18;--h:24.91">goal more complex than that of a thermostat. In 1944, John von Neumann </span><span class="ln" style="--x:0;--y:50.03;--w:562.64;--f:18;--h:24.92">and Oskar Morgenstern argued that under some conditions, one can </span><span class="ln" style="--x:0;--y:75.03;--w:574.3;--f:18;--h:24.91">represent a person’s preferences with a utility function. Later, in 1950, </span><span class="ln" style="--x:0;--y:100.03;--w:613.48;--f:18;--h:24.92">Claude Shannon introduced the notion of an evaluation function to explain </span><span class="ln" style="--x:0;--y:125.03;--w:546.22;--f:18;--h:24.91">how a machine for playing chess might evaluate whether its board </span><span class="ln" style="--x:0;--y:150.03;--w:307.86;--f:18;--h:24.91">position was a winning or losing one. </span></p>
+                <p style="--x:307;--y:2200.81;--w:614;--h:150"><span class="ln" style="--x:0;--y:0.03;--w:571.44;--f:18;--h:24.91">Both of these ideas were absorbed into the emerging field of artificial </span><span class="ln" style="--x:0;--y:25.03;--w:571.75;--f:18;--h:24.91">intelligence over the following decades, particularly in reinforcement </span><span class="ln" style="--x:0;--y:50.03;--w:588.92;--f:18;--h:24.91">learning. An intelligent machine, then, could be seen as a system with a </span><span class="ln" style="--x:0;--y:75.03;--w:562.67;--f:18;--h:24.91">numerical objective, searching over possible actions for the highest- </span><span class="ln" style="--x:0;--y:100.03;--w:594.84;--f:18;--h:24.91">scoring approach. This optimization process, chasing a numerical score, </span><span class="ln" style="--x:0;--y:125.03;--w:389.14;--f:18;--h:24.91">misses anything outside of the direct objective. </span></p>
+                <p style="--x:307;--y:2368.81;--w:614;--h:275"><span class="ln" style="--x:0;--y:0.03;--w:547.72;--f:18;--h:24.92">In 1965, I.J. Good wrote of an “ultraintelligent machine” that could, </span><span class="ln" style="--x:0;--y:25.03;--w:559.56;--f:18;--h:24.91">because of its intellectual superiority to humans, design even better </span><span class="ln" style="--x:0;--y:50.03;--w:596.38;--f:18;--h:24.91">machines and beget an intelligence explosion. But Vernor Vinge, in 1993, </span><span class="ln" style="--x:0;--y:75.03;--w:595.72;--f:18;--h:24.91">did more to shape the intellectual world from which the modern field of </span><span class="ln" style="--x:0;--y:100.03;--w:570.58;--f:18;--h:24.91">alignment emerged in the early 2000s, centered on thinkers like Nick </span><span class="ln" style="--x:0;--y:125.03;--w:586.33;--f:18;--h:24.91">Bostrom and Eliezer Yudkowsky. They worried about what Vinge called </span><span class="ln" style="--x:0;--y:150.03;--w:598.64;--f:18;--h:24.91">the “Coming Technological Singularity” — the moment when these self- </span><span class="ln" style="--x:0;--y:175.03;--w:603.14;--f:18;--h:24.91">improving artificial intelligences would create an explosive technological </span><span class="ln" style="--x:0;--y:200.03;--w:612.08;--f:18;--h:24.91">transformation far beyond the ability of humans to understand or control. </span><span class="ln" style="--x:0;--y:225.03;--w:612.02;--f:18;--h:24.91">If — or, for Yudkowsky, when — such systems existed, the purpose we put </span><span class="ln" style="--x:0;--y:250.03;--w:442.98;--f:18;--h:24.91">into the machine would be of the utmost importance. </span></p>
+                <p style="--x:307;--y:2955.25;--w:614;--h:350"><span class="ln" style="--x:0;--y:0.03;--w:573.08;--f:18;--h:24.91">Early research on “Friendly AI” — a term Yudkowsky popularized in a </span><span class="ln" style="--x:0;--y:25.03;--w:522.64;--f:18;--h:24.91">2001 essay — confronted a problem of motivational stability. In </span><span class="ln" style="--x:0;--y:50.03;--w:560.08;--f:18;--h:24.91">Yudkowsky’s picture, a “seed AI” would improve itself by recursively </span><span class="ln" style="--x:0;--y:75.03;--w:602.67;--f:18;--h:24.91">rewriting its own source code without human intervention, evolving into </span><span class="ln" style="--x:0;--y:100.03;--w:545.12;--f:18;--h:24.91">a human-equivalent or even superhuman intelligence by doing so. </span><span class="ln" style="--x:0;--y:125.03;--w:588.52;--f:18;--h:24.91">Because it would come to understand and revise the code and cognitive </span><span class="ln" style="--x:0;--y:150.03;--w:557.81;--f:18;--h:24.91">architecture through which it represented and pursued its goals, its </span><span class="ln" style="--x:0;--y:175.03;--w:609.06;--f:18;--h:24.91">designers could not be satisfied with giving the first version an acceptable </span><span class="ln" style="--x:0;--y:200.03;--w:577.59;--f:18;--h:24.91">motivational structure. That initial motivation — or whatever made it </span><span class="ln" style="--x:0;--y:225.03;--w:553.83;--f:18;--h:24.91">acceptable — would have to survive into the cognitive systems that </span><span class="ln" style="--x:0;--y:250.03;--w:582.95;--f:18;--h:24.91">followed. The worry was not that the machine would decide to become </span><span class="ln" style="--x:0;--y:275.03;--w:559.19;--f:18;--h:24.91">evil, but that its original purposes might be corrupted, discarded, or </span><span class="ln" style="--x:0;--y:300.03;--w:593.84;--f:18;--h:24.91">altered in meaning as it reconstructed the machinery that implemented </span><span class="ln" style="--x:0;--y:325.03;--w:572.77;--f:18;--h:24.91">them. Even if the seed AI valued human life, its successors might not. </span></p>
+                <p style="--x:307;--y:3323.25;--w:614;--h:175"><span class="ln" style="--x:0;--y:0.03;--w:590.52;--f:18;--h:24.91">In 2004, Yudkowsky developed a sophisticated account of what kinds of </span><span class="ln" style="--x:0;--y:25.03;--w:569.77;--f:18;--h:24.91">goals we might want to impart to an AI — assuming, of course, those </span><span class="ln" style="--x:0;--y:50.03;--w:601.98;--f:18;--h:24.91">values could be made to stick. A friendly superintelligence should pursue </span><span class="ln" style="--x:0;--y:75.03;--w:605.58;--f:18;--h:24.91">what he called the coherent extrapolated volition of humanity: the things </span><span class="ln" style="--x:0;--y:100.03;--w:578.03;--f:18;--h:24.91">that we would want as a species if we knew more, thought faster, were </span><span class="ln" style="--x:0;--y:125.03;--w:608.47;--f:18;--h:24.91">more like our ideal selves, and had more time to collectively reflect on our </span><span class="ln" style="--x:0;--y:150.03;--w:57;--f:18;--h:24.91">values. </span></p>
               </div>
             </article>
           </div>
@@ -399,7 +457,7 @@
       ["They record his neural signals", "sky", 0],
       ["“That’s nice,” Buckwalter said, admiring the image.", "rose", 0, "imagine saying “that’s nice” about your own motor cortex"],
     ],
-    noema: [["This is a dream reinvented with every breaking wave of new technology.", "honey", 0, "every new gadget, same dream"], ["But are they, or could they ever be, conscious? And why would that matter?", "", 1], ["both long and mostly unhappy", "rose", 0]],
+    noema: [["This is a dream reinvented with every breaking wave of new technology.", "honey", 0], ["But are they, or could they ever be, conscious? And why would that matter?", "", 1, "honestly the second question is the better one"], ["both long and mostly unhappy", "rose", 0]],
     asterisk: [["a Quaker friend informed him that he was generally thought proud", "honey", 0], ["but [he] had a good deal with regard to the appearance of it", "", 1, "looking humble vs being humble. sounds familiar"], ["His affected modesty made others more readily accept his ideas", "sage", 0]],
   };
   // The set the owner chose (2026-11-18): the Times story on a man's brain data, its note linking to Noema, then
@@ -494,6 +552,9 @@
 
   function open(i) {
     done();
+    // Each page keeps its place; the row is back on any tab you come to.
+    if (pages[current]) tops.set(pages[current], sheet.scrollTop);
+    tuck(false);
     current = i;
     tabs.forEach((t, n) => t.setAttribute("aria-selected", n == i));
     all.forEach(p => p.classList.toggle("on", p == pages[i]));
@@ -501,6 +562,8 @@
     desk.style.setProperty("--paper", getComputedStyle(pages[i]).getPropertyValue("--paper"));
     // A tab's corner is simply as it was left: nothing folds on changing tabs.
     keep(kept[i], true);
+    sheet.scrollTop = lastY = tops.get(pages[i]) || 0;
+    win.style.setProperty("--paper", getComputedStyle(pages[i]).getPropertyValue("--paper"));
     fit(pages[i]);
     place();
   }
@@ -589,20 +652,28 @@
     if (link) card(a, link);
     paint(id);
   }
-  // A note lies in the margin beside the first of its words. What is typed is its first part; a link's card follows.
+  // A note lies in the margin beside the first of its words, always ready to type in: click it anywhere. Enter or
+  // Escape finishes it; the × at its corner takes it away and leaves the highlight.
   function write(id) {
     const a = made.get(id);
-    if (a.note) return a.note.firstChild;
-    const note = a.note = document.createElement("span"), words = document.createElement("span");
-    note.className = "note"; words.className = "nw"; words.contentEditable = "true"; words.spellcheck = false;
-    note.append(words);
-    words.addEventListener("keydown", e => { if (e.key == "Enter" || e.key == "Escape") { e.preventDefault(); words.blur(); } e.stopPropagation(); });
+    if (a.note) return a.note.querySelector(".nw");
+    const make = c => { const e = document.createElement("span"); e.className = c; return e; };
+    const note = a.note = make("note"), body = make("nb"), words = make("nw"), x = make("nx");
+    words.contentEditable = "true"; words.spellcheck = false;
+    x.textContent = "×"; x.title = "Remove Note";
+    body.append(words); note.append(body, x);
+    const finish = () => { getSelection().removeAllRanges(); words.blur(); };
+    words.addEventListener("keydown", e => { if (e.key == "Enter" || e.key == "Escape") { e.preventDefault(); finish(); } e.stopPropagation(); });
     words.addEventListener("blur", () => {
-      words.textContent = words.textContent.trim();
-      if (!words.textContent && !note.querySelector(".card")) { note.remove(); a.note = null; if (made.has(id)) paint(id); }
+      const kept = words.textContent.trim();
+      if (kept != words.textContent) words.textContent = kept;
+      if (!kept && !note.querySelector(".card")) take();
       place();
     });
     words.addEventListener("input", place);
+    note.addEventListener("click", e => { if (!e.target.closest(".card, .nx") && document.activeElement != words) { words.focus({ preventScroll: true }); getSelection().selectAllChildren(words); getSelection().collapseToEnd(); } });
+    const take = () => { note.remove(); a.note = null; if (made.has(id)) bare(a) ? remove(id) : paint(id); place(); };
+    x.addEventListener("click", take);
     spans(id)[0].closest("p, h2, h3").append(note);
     return words;
   }
@@ -618,17 +689,24 @@
     c.querySelector(".cgo").addEventListener("click", () => { const i = SETS[set].tabs.indexOf(k); if (i >= 0) open(i); });
     c.querySelector(".cmarks").addEventListener("click", () => { c.classList.toggle("open"); place(); });
     c.querySelector("img").addEventListener("load", place);
-    a.note.append(c);
+    const x = document.createElement("span");
+    x.className = "cx"; x.textContent = "×"; x.title = "Remove Link";
+    x.addEventListener("click", () => { c.remove(); if (!a.note.querySelector(".nw").textContent.trim()) a.note.querySelector(".nx").click(); place(); });
+    c.append(x);
+    a.note.querySelector(".nb").append(c);
   }
   // Notes sit level with their words, and step down so that no two overlap.
   function place() {
     let floor = -1e9;
+    const edge = sheet.getBoundingClientRect().right;
     const notes = [...made].filter(([id, a]) => a.note && pages[current]?.contains(a.note))
       .map(([id, a]) => [a.note, spans(id)[0].getClientRects()[0]?.top ?? 0]).sort((x, y) => x[1] - y[1]);
     for (const [note, top] of notes) {
-      const y = Math.max(top - 2, floor);
-      note.style.top = y - note.parentNode.getBoundingClientRect().top + "px";
-      floor = y + note.offsetHeight + 8;
+      const em = parseFloat(getComputedStyle(note).fontSize), by = note.parentNode.getBoundingClientRect();
+      const y = Math.max(top - .375 * em, floor);
+      note.style.top = y - by.top + "px";
+      note.style.left = Math.min(by.right + 1.375 * em, edge - note.offsetWidth - .875 * em) - by.left + "px";
+      floor = y + note.offsetHeight + .625 * em;
     }
   }
   // The colours rise above the words if there is room, otherwise below, always wholly on the page.
@@ -717,8 +795,38 @@
     history.replaceState(null, "", "?a=" + (n + 1));
   }
 
-  // Neither the page in the window nor the landing page scrolls, even when a selection is dragged past the foot.
-  for (const e of [sheet, document.scrollingElement]) e.addEventListener("scroll", () => { e.scrollTop = 0; e.scrollLeft = 0; });
+  // ---------- Scrolling a page ----------
+  // The top row goes as soon as the page is scrolled down, and comes back at the top of the page, for a brisk pull
+  // up (160 points within 0.4 s) or a long one (400 points), a pause of 0.15 s ending a pull: the app's own rules,
+  // so slow scrolls back to re-read a line leave it away. It also comes back when the pointer reaches the top edge.
+  const win = document.querySelector(".in"), tops = new Map();
+  let tucked = false, lastY = 0, pulled = 0, pullAt = 0, stepAt = 0, calmUntil = 0;
+  function tuck(on) {
+    if (on == tucked) return;
+    tucked = on;
+    win.classList.toggle("tucked", on);
+    calmUntil = performance.now() + 400;      // the page growing or shrinking is not the reader scrolling
+    if (kept[current]) turn(!on);              // a turned corner lies flat while the row is away
+  }
+  sheet.addEventListener("scroll", () => {
+    sheet.scrollLeft = 0;
+    if (cur) done();
+    const room = sheet.scrollHeight - sheet.clientHeight, y = Math.min(Math.max(sheet.scrollTop, 0), room), now = performance.now(), step = y - lastY;
+    lastY = y;
+    if (y <= 8) { tuck(false); pulled = 0; }
+    else if (now < calmUntil || (room < 120 && step > 0)) { }
+    else if (step > 0) { tuck(true); pulled = 0; }
+    else if (step < 0) {
+      if (!pulled || now - stepAt > 150) { pulled = 0; pullAt = now; }
+      pulled -= step;
+      if ((pulled >= 160 && now - pullAt <= 400) || pulled >= 400) tuck(false);
+    }
+    if (step) stepAt = now;
+  });
+  win.addEventListener("pointermove", e => { if (tucked && e.clientY - win.getBoundingClientRect().top < 8) tuck(false); });
+  new ResizeObserver(() => { if (pages.length) draw(); }).observe(sheet);
+  // The landing page itself never scrolls, even when a selection is dragged past the foot.
+  for (const e of [document.scrollingElement]) e.addEventListener("scroll", () => { e.scrollTop = 0; e.scrollLeft = 0; });
   addEventListener("scroll", () => scrollTo(0, 0));
 
   // The Mac rounds its corners with a smooth curve that eases into the edge, not a plain quarter circle,
@@ -735,9 +843,9 @@
     const shape = smooth(win.offsetWidth, win.offsetHeight + 40, 16.4 * point);
     win.style.clipPath = `path("${shape}")`;
     document.querySelectorAll(".halo path").forEach(p => p.setAttribute("d", shape));
-    lift.style.clipPath = `path("${smooth(lift.offsetWidth, lift.offsetHeight + 40, 14 * point)}")`;
+    lift.style.clipPath = `path("${smooth(lift.offsetWidth, lift.offsetHeight + 400, 14 * point)}")`;
     // The corner and the notes are measured in the window's own points, so they follow its size.
-    if (pages.length) { if (!turning) turn(kept[current], true); fit(pages[current]); place(); done(); }
+    if (pages.length) { if (!turning) turn(kept[current] && !tucked, true); fit(pages[current]); place(); done(); }
   }
   new ResizeObserver(corners).observe(document.querySelector(".in"));
 
