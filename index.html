@@ -123,9 +123,26 @@
   .page mark.sky { background: var(--sky); }
   .page u { text-decoration: underline var(--red) .1em; text-underline-offset: .2em; }
   .noted { position: relative; }
-  .note { position: absolute; left: calc(100% + 2.2em); top: var(--at, 0); width: 14em; font-family: var(--serif); font-size: .84em; font-style: normal; line-height: 1.4; color: #3a3a3a; background: #fff; border: 1px solid var(--rule); border-radius: .5em; padding: .65em .8em .65em 1.4em; user-select: text; -webkit-user-select: text; cursor: text; outline: none; min-height: 2.7em; letter-spacing: 0; text-align: left; text-decoration: none; }
-  .note:empty::after { content: "Write a note"; color: #a8a8a8; }
-  .note::before { content: ""; position: absolute; left: .6em; top: .65em; bottom: .65em; width: .2em; border-radius: .1em; background: var(--tick, #F6D56A); }
+  .note { position: absolute; left: calc(100% + 2.2em); top: var(--at, 0); width: 14.6em; font: 400 1.2903cqw/1.4 var(--serif); color: #3a3a3a; background: #fff; border: 1px solid var(--rule); border-radius: .5em; padding: .6em .7em .6em 1.25em; letter-spacing: 0; text-align: left; text-decoration: none; text-transform: none; font-style: normal; }
+  .note::before { content: ""; position: absolute; left: .55em; top: .65em; bottom: .65em; width: .2em; border-radius: .1em; background: var(--tick, #F6D56A); }
+  .note .nw { display: block; font-size: .875em; outline: none; cursor: text; user-select: text; -webkit-user-select: text; min-height: 1.4em; }
+  .note .nw:empty::after { content: "Write a note"; color: #a8a8a8; }
+  /* A link in a note, as ibid draws it: the linked page's picture over its title and site, then a tick for each
+     highlight already on that page; pressing the ticks unfolds those passages. Sizes are the app's, in points. */
+  .card { display: block; margin-top: .5em; background: #fff; border-radius: .4375em; box-shadow: 0 0 0 .75px rgba(0,0,0,.12); overflow: hidden; user-select: none; -webkit-user-select: none; cursor: pointer; }
+  .card .cgo { display: block; }
+  .card img { display: block; width: 100%; height: 6.5em; object-fit: cover; }
+  .card .ct { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font: 500 .84375em/1.25 var(--serif); color: #1E1E1E; padding: .6em .6em 0; }
+  .card .cs { display: flex; align-items: center; gap: .4em; font: 400 .72em/1.2 var(--serif); color: #7A7A7A; padding: .28em .7em .7em; }
+  .card .cs i { width: 1.05em; height: 1.05em; border-radius: .26em; color: #fff; font: 700 .7em/1 var(--sans); display: grid; place-items: center; font-style: normal; }
+  .card .cmarks { display: flex; align-items: center; gap: .1875em; padding: .0625em .5em .5em; font: 400 .72em/1.2 var(--serif); color: #7A7A7A; }
+  .card .cmarks i { width: 1.22em; height: .35em; border-radius: 1em; }
+  .card .cmarks span { margin-left: .35em; }
+  .card .cq { display: none; padding: 0 .5em .5em; }
+  .card.open .cq { display: grid; gap: .5em; }
+  .card .cq span { display: flex; gap: .375em; align-items: baseline; }
+  .card .cq i { flex: none; width: .625em; height: .25em; border-radius: 1em; transform: translateY(-.2em); }
+  .card .cq em { font: italic 400 .78em/1.32 var(--serif); color: rgba(30,30,30,.75); }
   /* The address floats at the foot of what can be seen of the page, as it does in ibid. */
   .addr { position: absolute; left: 50%; bottom: 1.1em; transform: translateX(-50%); width: 25em; height: 2.75em; border-radius: 1.375em; display: flex; align-items: center; gap: 1em; padding: 0 1.1em;
     background: rgba(255,255,255,.72); -webkit-backdrop-filter: blur(1.2em) saturate(1.7); backdrop-filter: blur(1.2em) saturate(1.7); box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 .5em 1.8em rgba(0,0,0,.14); }
@@ -139,18 +156,43 @@
   .addr .re { opacity: .75; pointer-events: none; }
 
   /* The three websites, each in something like its own dress. */
-  .nyt { --paper: #fff; font-family: Georgia, "Times New Roman", serif; }
-  .nyt .mast { text-align: center; font: 700 1.05em/1 Georgia, serif; letter-spacing: .01em; padding: 1em 0 .9em; border-bottom: 1px solid #dcdcdc; margin: 0 2.4em; }
-  .nyt .col { width: 44em; margin: 1.7em auto 0; transform: translateX(-5em); }
-  .nyt h2 { font: italic 700 1.72em/1.14 Georgia, serif; letter-spacing: -.01em; margin-bottom: .75em; }
-  .nyt p { font-size: 1.22em; line-height: 1.56; margin-bottom: .95em; color: #222; }
-  .book { --paper: #fff; font-family: Georgia, "Times New Roman", serif; }
-  .book .mast { padding: 1em 2.4em .9em; font: 600 .86em/1 var(--sans); color: #6b6b6b; border-bottom: 1px solid #e4e4e4; }
-  .book .mast b { color: #1e1e1e; font-weight: 700; margin-right: .7em; }
-  .book .col { width: 40em; margin: 1.9em auto 0; transform: translateX(-5.5em); }
-  .book h2 { font: 400 1.9em/1.15 Georgia, serif; margin-bottom: .2em; }
-  .book h3 { font: italic 400 1.05em/1.3 Georgia, serif; color: #6b6b6b; margin-bottom: 1.1em; }
-  .book p { font-size: 1.2em; line-height: 1.6; margin-bottom: 1em; color: #222; }
+  /* The New York Times: the real article page as line art (its letters are shapes, so it is sharp at any size), taken in the test copy at this window's own width
+     (1228 points), with the article's words laid over it line by line, see-through, each line fitted to the real
+     line's width. So the page is the Times's to the pixel, and its words can still be highlighted. --u is one of
+     the real page's points. */
+  .shot { --paper: #fff; --u: .080645cqw; font-size: 1em; position: relative; }
+  .shot .bg { position: absolute; left: 0; top: 0; width: 100%; display: block; pointer-events: none; user-select: none; -webkit-user-select: none; }
+  .shot .col { position: absolute; inset: 0; }
+  .shot .col p { position: absolute; margin: 0; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); width: calc(var(--w) * var(--u)); height: calc(var(--h) * var(--u)); }
+  .shot .ln { position: absolute; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); white-space: nowrap; color: transparent;
+    font: calc(var(--f) * var(--u))/calc(var(--h) * var(--u)) Georgia, "Times New Roman", serif; }
+  .shot ::selection { background: rgba(70,140,255,.28); color: transparent; }
+  .shot .hl { mix-blend-mode: multiply; padding: 0 .1em; margin: 0 -.1em; }
+  .shot .hl.line { text-decoration-skip-ink: none; -webkit-text-decoration-skip: none; }
+  /* The other real websites, each from a few values: paper, masthead, headline and body type. */
+  .site { --paper: #fff; }
+  .site .mast { display: flex; align-items: center; justify-content: var(--mj, center); gap: .8em; padding: var(--mp, .95em 2.4em); border-bottom: 1px solid var(--mrule, #e2e2e2); background: var(--mbg, transparent); color: var(--mc, #111); font: var(--mf); letter-spacing: var(--ml, 0); text-transform: var(--mt, none); }
+  .site .col { width: var(--cw, 40em); margin: 1.7em auto 0; transform: translateX(-5.5em); }
+  .site .kick { font: 600 .7em/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--kc, #8a8a8a); margin-bottom: .9em; }
+  .site h2 { font: var(--hf); color: var(--hc, #121212); letter-spacing: var(--hl, -.01em); text-transform: var(--ht, none); margin-bottom: .5em; }
+  .site h3 { font: var(--sf, italic 400 1.12em/1.4 Georgia, serif); color: var(--sc, #5a5a5a); margin-bottom: 1.1em; position: relative; }
+  .site p { font: var(--pf); color: var(--pc, #1c1c1c); margin-bottom: 1em; }
+  .s-atlantic { --mf: italic 500 1.5em/1 Garamond, "Adobe Garamond Pro", Baskerville, serif; --kc: #E7131A; --hf: 400 2.15em/1.1 Garamond, "Adobe Garamond Pro", Baskerville, serif; --sf: 400 1.25em/1.35 Garamond, Baskerville, serif; --sc: #222; --pf: 1.36em/1.45 Garamond, "Adobe Garamond Pro", Baskerville, serif; --cw: 41em; }
+  .s-newyorker { --mbg: #111; --mc: #fff; --mrule: #111; --mf: 400 1.02em/1 Didot, "Bodoni 72", serif; --ml: .1em; --mt: uppercase; --hf: 500 1.9em/1.12 "Avenir Next Condensed", "Helvetica Neue", sans-serif; --ht: uppercase; --hl: .01em; --pf: 1.26em/1.52 "Adobe Caslon Pro", "Big Caslon", Baskerville, Georgia, serif; --cw: 41em; }
+  .s-guardian { --mbg: #052962; --mc: #fff; --mrule: #052962; --mj: flex-start; --mf: 700 1.3em/1 Georgia, serif; --kc: #C70000; --hf: 500 1.85em/1.14 Georgia, serif; --pf: 1.17em/1.5 Georgia, serif; --cw: 42em; }
+  .s-pg { --hf: 700 1.15em/1.2 Verdana, sans-serif; --hc: #555; --hl: 0; --sf: 400 .86em/1.3 Verdana, sans-serif; --pf: .95em/1.5 Verdana, sans-serif; --pc: #000; --cw: 31em; }
+  .s-pg .col { margin-top: 2.6em; }
+  .s-wip { --paper: #FFF7F4; --mj: flex-start; --mrule: #111; --mf: 500 .82em/1.2 Menlo, "SF Mono", monospace; --kc: #111; --hf: 700 2.3em/1.08 "Iowan Old Style", Georgia, serif; --pf: 1.16em/1.52 "Iowan Old Style", Georgia, serif; }
+  .s-marginalian { --mbg: #F9DC3F; --mrule: #F9DC3F; --mj: flex-start; --mf: 800 1.5em/1 "Avenir Next Condensed", "Arial Narrow", sans-serif; --hf: 300 1.7em/1.2 "Avenir Next", "Helvetica Neue", sans-serif; --hl: 0; --pf: 1.17em/1.6 Georgia, serif; --cw: 38em; }
+  .s-noema { --mf: 700 1.4em/1 Didot, "Bodoni 72", Georgia, serif; --ml: .06em; --mt: uppercase; --hf: 700 2.2em/1.1 "Iowan Old Style", Georgia, serif; --sf: 400 1.14em/1.4 "Iowan Old Style", Georgia, serif; --sc: #333; --pf: 1.22em/1.5 "Iowan Old Style", Georgia, serif; --pc: #333; }
+  .s-asterisk { --paper: #FAF8F0; --mj: flex-end; --mrule: transparent; --mf: 600 1em/1 Georgia, serif; --hf: 400 2.5em/1.06 "Iowan Old Style", Georgia, serif; --hc: #2D90CF; --sf: 400 1.3em/1.25 "Iowan Old Style", Georgia, serif; --sc: #2D90CF; --pf: 1.1em/1.45 "Iowan Old Style", Georgia, serif; --cw: 36em; }
+  .s-einstein { --mj: flex-start; --mf: 400 1.1em/1 "Avenir Next", "Helvetica Neue", sans-serif; --ml: .08em; --hf: 700 1.9em/1.16 Georgia, serif; --sf: italic 400 1.02em/1.5 Georgia, serif; --pf: 1.14em/1.66 Georgia, serif; --cw: 40em; }
+  .s-einstein .mast b { font-weight: 700; margin-right: -.8em; }
+  .s-horse { font-family: var(--serif); --mj: flex-start; --mrule: transparent; --mp: .9em 2.6em .3em; --mf: 700 1.8em/1 var(--serif); --ml: -.04em; --mc: #8E1A1D; --hf: 600 2.3em/1.06 var(--serif); --hl: -.02em; --pf: 1.2em/1.58 var(--serif); --cw: 38em; }
+  .s-longnow { --paper: #F7F7F6; --mf: 400 1em/1 Baskerville, Georgia, serif; --ml: .16em; --mt: uppercase; --hf: 700 2.3em/1.08 Baskerville, Georgia, serif; --sf: 400 1em/1.4 "Avenir Next", sans-serif; --pf: 1.3em/1.42 Garamond, Baskerville, Georgia, serif; }
+  .s-arxiv { --mbg: #1B1B1B; --mc: #ddd; --mrule: #1B1B1B; --mj: flex-start; --mp: .8em 2.4em; --mf: 700 .82em/1 "Lucida Grande", Verdana, sans-serif; --hf: 700 1.5em/1.2 "Lucida Grande", Verdana, sans-serif; --hl: 0; --sf: 400 .98em/1.4 "Lucida Grande", Verdana, sans-serif; --sc: #0D47A1; --pf: .93em/1.52 "Lucida Grande", Verdana, sans-serif; --pc: #000; --cw: 44em; }
+  .s-arxiv .mast b { font: 700 1.7em/1 Georgia, serif; color: #fff; margin-right: .6em; }
+  .s-arxiv p { padding-left: 1.4em; }
   .aeon { --paper: #fff; }
   .aeon .mast { padding: .9em 2.6em .6em; font: 700 1.8em/1 var(--serif); letter-spacing: -.04em; color: #8E1A1D; }
   .aeon .col { width: 38em; margin: .8em auto 0; transform: translateX(-5.5em); }
@@ -275,58 +317,37 @@
         </div>
         <div class="desk" id="desk">
           <div class="lift"><div class="sheet" id="sheet">
-            <article class="page nyt" data-key="nyt" data-host="nytimes.com">
-              <div class="mast">The New York Times Magazine</div>
+            <article class="page shot" data-key="brain" data-host="nytimes.com">
+              <img class="bg" src="times-brain.svg" alt="" draggable="false">
               <div class="col">
-                <h2>I Visited Big Bear Lake’s Famous Bald Eagles and Found Very Human Shenanigans</h2>
-                <p>It was the middle of winter, the sad dark stretch when the sun seems to set before it rises, when the snow outside is dishwater gray, and I was handling it the way I always do: vegetating under a mound of pillows, poking at my glowing screen, praying that the internet would serve me something good — not the usual toxic fire hose of spam, slop, bots, gambling ads and phishing links.</p>
-                <p>Instantly, a new world filled my screen. At the bottom, dominating the foreground, was the nest: a big messy tangle of sticks and branches. Behind that, stretching off to infinity, was a panoramic view that looked too good to be true: green forest, blue water, purple mountains. It looked like a Renaissance painting of the Garden of Eden — the sort of sun-splashed paradise the word “sublime” was invented to describe.</p>
-                <p>The feed seemed to have a good microphone, because as soon as I clicked, all the noises of the forest came pouring into my house: songbirds chirping, ravens croaking, woodpeckers hammering out their overlapping drum rolls — and, over it all, the constant roar of an oceanic wind, a big crashing whoosh that thrashed the treetops, so loud and harsh it sounded like fire.</p>
+                <p style="--x:314;--y:207;--w:600;--h:120"><span class="ln" style="--x:0;--y:5;--w:584.19;--f:20;--h:20">On a recent Thursday, J. Galen Buckwalter drove 15 minutes from </span><span class="ln" style="--x:0;--y:35;--w:543.17;--f:20;--h:20">his home to the California Institute of Technology, steered his </span><span class="ln" style="--x:0;--y:65;--w:571.16;--f:20;--h:20">wheelchair into a laboratory and, as he had twice a week for two </span><span class="ln" style="--x:0;--y:95;--w:240.73;--f:20;--h:20">years, plugged in his brain. </span></p>
+                <p style="--x:314;--y:342;--w:600;--h:180"><span class="ln" style="--x:0;--y:5;--w:563.16;--f:20;--h:20">More precisely, he allowed a researcher to attach wires to three </span><span class="ln" style="--x:0;--y:35;--w:584.38;--f:20;--h:20">metal knobs screwed into his skull like a cyberpunk mohawk. The </span><span class="ln" style="--x:0;--y:65;--w:597.3;--f:20;--h:20">wires connect to six chips that were implanted in his brain during a </span><span class="ln" style="--x:0;--y:95;--w:594.12;--f:20;--h:20">seven-hour craniotomy. They record his neural signals — the firing </span><span class="ln" style="--x:0;--y:125;--w:591.88;--f:20;--h:20">of his brain when he thinks, speaks or moves — and transmit them </span><span class="ln" style="--x:0;--y:155;--w:261.61;--f:20;--h:20">to a computer to be analyzed. </span></p>
+                <p style="--x:314;--y:537;--w:600;--h:60"><span class="ln" style="--x:0;--y:5;--w:582.11;--f:20;--h:20">“Check this out,” said the researcher, a Ph.D. student named Sean </span><span class="ln" style="--x:0;--y:35;--w:534.41;--f:20;--h:20">Darcy, pointing to three colored lines vibrating on a monitor. </span></p>
+                <p style="--x:314;--y:612;--w:600;--h:30"><span class="ln" style="--x:0;--y:5;--w:296.83;--f:20;--h:20">“Where’s that?” Buckwalter said. </span></p>
+                <p style="--x:314;--y:657;--w:600;--h:60"><span class="ln" style="--x:0;--y:5;--w:594.86;--f:20;--h:20">“Motor,” Darcy said — meaning the chip implanted in Buckwalter’s </span><span class="ln" style="--x:0;--y:35;--w:120.53;--f:20;--h:20">motor cortex. </span></p>
+                <p style="--x:314;--y:733;--w:600;--h:30"><span class="ln" style="--x:0;--y:5;--w:456.91;--f:20;--h:20">“That’s nice,” Buckwalter said, admiring the image. </span></p>
+                <p style="--x:314;--y:778;--w:600;--h:210"><span class="ln" style="--x:0;--y:5;--w:562.11;--f:20;--h:20">Those neural signals may prove to be hugely valuable. Already, </span><span class="ln" style="--x:0;--y:35;--w:572.58;--f:20;--h:20">brain-computer interfaces have enabled people with paralysis to </span><span class="ln" style="--x:0;--y:65;--w:578.45;--f:20;--h:20">fly drones and helped people who have lost the ability to speak to </span><span class="ln" style="--x:0;--y:95;--w:587.33;--f:20;--h:20">communicate — using just their thoughts. Eventually, researchers </span><span class="ln" style="--x:0;--y:125;--w:559.89;--f:20;--h:20">say, they could allow the regulation of emotions such as pain or </span><span class="ln" style="--x:0;--y:155;--w:596.52;--f:20;--h:20">fear; the instant transfer of knowledge, such as a new language; or </span><span class="ln" style="--x:0;--y:185;--w:566.47;--f:20;--h:20">the merging of human consciousness with artificial intelligence. </span></p>
+                <p style="--x:314;--y:1003;--w:600;--h:150"><span class="ln" style="--x:0;--y:5;--w:582.17;--f:20;--h:20">Buckwalter, 70, was almost totally paralyzed from the chest down </span><span class="ln" style="--x:0;--y:35;--w:552.3;--f:20;--h:20">after a diving accident in his teens. He signed up for the study, </span><span class="ln" style="--x:0;--y:65;--w:531.53;--f:20;--h:20">conducted jointly by Caltech and the University of Southern </span><span class="ln" style="--x:0;--y:95;--w:562.09;--f:20;--h:20">California, because he wanted to make life better for others like </span><span class="ln" style="--x:0;--y:125;--w:39.22;--f:20;--h:20">him. </span></p>
               </div>
             </article>
-            <article class="page aeon" data-key="aeon" data-host="aeon.co">
-              <div class="mast">aeon</div>
+            <article class="page site s-noema" data-key="noema" data-host="noemamag.com">
+              <div class="mast">Noema</div>
               <div class="col">
-                <h2>Why the dilettante is the anti-hero of our over-optimised age</h2>
-                <p>Why, of all people, defend the dilettante? An amateur at best, a flighty rascal at worst: why take an interest in someone whose own interests are never more than a passing hobby? These are serious times – why take seriously someone for whom nothing is serious?</p>
-                <p>Merriam-Webster defines the dilettante as ‘a person having a superficial interest in an art or a branch of knowledge’. Encyclopedia.com calls the dilettante someone who cultivates an interest ‘without real commitment or knowledge’. Cambridge settles for someone whose understanding ‘is not very deep or serious’. None of it is flattering.</p>
-                <p>Clearly, the dilettante is no aspirational character. No university markets itself as training the next generation of dilettantes; no magazine runs a ‘dilettante of the year’ issue (except, perhaps, for the excellent Idler publication). He – for the dilettante is, historically and in popular imagination, so often a ‘he’ – is in essence an amateur, a role defined by wide interests and narrow expertise.</p>
+                <h2>The Mythology Of Conscious AI</h2>
+                <h3>Why consciousness is more likely a property of life than of computation and why creating conscious, or even conscious-seeming AI, is a bad idea.</h3>
+                <p>For centuries, people have fantasized about playing God by creating artificial versions of human beings. This is a dream reinvented with every breaking wave of new technology. With genetic engineering came the prospect of human cloning, and with robotics that of humanlike androids.</p>
+                <p>The rise of artificial intelligence (AI) is another breaking wave — potentially a tsunami. The AI systems we have around us are arguably already intelligent, at least in some ways. They will surely get smarter still. But are they, or could they ever be, conscious? And why would that matter?</p>
+                <p>The cultural history of synthetic consciousness is both long and mostly unhappy. From Yossele the Golem, to Mary Shelley’s “Frankenstein,” HAL 9000 in “2001: A Space Odyssey,” Ava in “Ex Machina,” and Klara in “Klara and The Sun,” the dream of creating artificial bodies and synthetic minds that both think and feel rarely ends well — at least, not for the humans involved. One thing we learn from these stories: If artificial intelligence is on a path toward real consciousness, or even toward systems that persuasively seem to be conscious, there’s plenty at stake — and not just disruption in job markets.</p>
               </div>
             </article>
-            <article class="page quanta" data-key="quanta" data-host="quantamagazine.org">
-              <div class="mast"><b>Quanta</b> The Evolving Story of How Chemistry Became Biology</div>
+            <article class="page site s-asterisk" data-key="asterisk" data-host="asteriskmag.com">
+              <div class="mast">Asterisk</div>
               <div class="col">
-                <p>Around 300 million years into the existence of our solar system, conditions on Earth were right for a great chemical experiment to begin. Molecules entangled themselves in self-sustaining, self-reproducing loops. Over time, these systems became more complex. At some point, they had come to life.</p>
-                <p>Life invented new ways to move, and to capture, store, and use energy. It began to sense, respond to, and change its environment. It communicated, ate some of its neighbors and lived inside others, and formed complex, dynamic communities. Through cycles of birth, reproduction, and death; catastrophe; and bursts of evolution, it persisted and then thrived, taking over every corner of the planet.</p>
-                <p>Then, at some point, life gained a sense of itself, a reflective intelligence with the existential curiosity to ask: Where did we come from? For tens of thousands of years, we have pondered and probed the origins of life: Monks have meditated, philosophers have argued, lovers have mused, and parents have patiently answered their kids’ questions.</p>
-              </div>
-            </article>
-            <article class="page book" data-key="bacon" data-host="gutenberg.org">
-              <div class="mast"><b>Project Gutenberg</b> The Essays, by Francis Bacon</div>
-              <div class="col">
-                <h2>Of Studies</h2>
-                <h3>Francis Bacon, 1625</h3>
-                <p>Studies serve for delight, for ornament, and for ability. Their chief use for delight, is in privateness and retiring; for ornament, is in discourse; and for ability, is in the judgment, and disposition of business. For expert men can execute, and perhaps judge of particulars, one by one; but the general counsels, and the plots and marshalling of affairs, come best, from those that are learned.</p>
-                <p>Read not to contradict and confute; nor to believe and take for granted; nor to find talk and discourse; but to weigh and consider. Some books are to be tasted, others to be swallowed, and some few to be chewed and digested; that is, some books are to be read only in parts; others to be read, but not curiously; and some few to be read wholly, and with diligence and attention.</p>
-                <p>Reading maketh a full man; conference a ready man; and writing an exact man. And therefore, if a man write little, he had need have a great memory; if he confer little, he had need have a present wit: and if he read little, he had need have much cunning, to seem to know, that he doth not.</p>
-              </div>
-            </article>
-            <article class="page book" data-key="thoreau" data-host="gutenberg.org">
-              <div class="mast"><b>Project Gutenberg</b> Walden, by Henry David Thoreau</div>
-              <div class="col">
-                <h2>Where I Lived, and What I Lived For</h2>
-                <h3>Henry David Thoreau, 1854</h3>
-                <p>I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach, and not, when I came to die, discover that I had not lived. I did not wish to live what was not life, living is so dear; nor did I wish to practise resignation, unless it was quite necessary. I wanted to live deep and suck out all the marrow of life, to live so sturdily and Spartan-like as to put to rout all that was not life, to cut a broad swath and shave close, to drive life into a corner, and reduce it to its lowest terms.</p>
-                <p>Still we live meanly, like ants; though the fable tells us that we were long ago changed into men; like pygmies we fight with cranes; it is error upon error, and clout upon clout, and our best virtue has for its occasion a superfluous and evitable wretchedness. Our life is frittered away by detail. An honest man has hardly need to count more than his ten fingers, or in extreme cases he may add his ten toes, and lump the rest. Simplicity, simplicity, simplicity!</p>
-              </div>
-            </article>
-            <article class="page book" data-key="emerson" data-host="gutenberg.org">
-              <div class="mast"><b>Project Gutenberg</b> Essays, First Series, by Ralph Waldo Emerson</div>
-              <div class="col">
-                <h2>Self-Reliance</h2>
-                <h3>Ralph Waldo Emerson, 1841</h3>
-                <p>I read the other day some verses written by an eminent painter which were original and not conventional. The soul always hears an admonition in such lines, let the subject be what it may. The sentiment they instil is of more value than any thought they may contain. To believe your own thought, to believe that what is true for you in your private heart is true for all men,—that is genius.</p>
-                <p>A man should learn to detect and watch that gleam of light which flashes across his mind from within, more than the lustre of the firmament of bards and sages. Yet he dismisses without notice his thought, because it is his. In every work of genius we recognize our own rejected thoughts; they come back to us with a certain alienated majesty. Great works of art have no more affecting lesson for us than this.</p>
+                <h2>The Dream of an Aristotelian Machine</h2>
+                <h3>Why alignment science took a turn towards virtue ethics.</h3>
+                <p>One of the more interesting stories about Benjamin Franklin, told in his Autobiography, is his attempt to cultivate in himself 13 virtues. These were: temperance, silence, order, resolution, frugality, industry, sincerity, justice, moderation, cleanliness, tranquility, chastity, and humility. He should strive, he wrote, to “imitate Jesus and Socrates.”</p>
+                <p>The final virtue on Franklin’s list, humility, was a late addition — a Quaker friend informed him that he was generally thought proud, and that this pride often came across in conversation. He endeavored to cure himself of this folly, including it in his plan for self-examination.</p>
+                <p>But it is easy to wonder, reading his account of his own life, how much Franklin really accomplished in seeking to eradicate pride from his self-conception. He “[could not] boast of much success,” he wrote, “in acquiring the reality of this virtue, but [he] had a good deal with regard to the appearance of it.” This paid dividends. His affected modesty made others more readily accept his ideas, and he felt less embarrassed when he was mistaken. The virtues, for the great empiricist Franklin, were worth cultivating in part because of the practical advantages they seemed to confer.</p>
               </div>
             </article>
           </div>
@@ -359,57 +380,28 @@
 <script>
   // The websites that can be in the window.
   const SITES = {
-    nyt: { title: "I Visited Big Bear Lake’s Famous…", fav: "T", colour: "#111" },
-    aeon: { title: "Why the dilettante is the…", fav: "a", colour: "#8E1A1D" },
-    quanta: { title: "The Evolving Story of How…", fav: "Q", colour: "#2c6a5a" },
-    bacon: { title: "Of Studies, by Francis Bacon", fav: "B", colour: "#5b5b5b" },
-    thoreau: { title: "Walden, by Henry David Thoreau", fav: "W", colour: "#5b5b5b" },
-    emerson: { title: "Self-Reliance, by Ralph Waldo…", fav: "S", colour: "#5b5b5b" },
+    brain: { title: "Does This Man Have a Right to the…", fav: "T", colour: "#111" },
+    noema: { title: "The Mythology Of Conscious AI", fav: "N", colour: "#333", name: "Noema Magazine", head: "The Mythology Of Conscious AI" },
+    asterisk: { title: "The Dream of an Aristotelian…", fav: "✱", colour: "#2D90CF", name: "Asterisk", head: "The Dream of an Aristotelian Machine" },
   };
-  // The sets being chosen between: which three websites, and what is already highlighted, underlined and noted on
-  // each: [website, the words, colour (or none), underlined?, the note]. The first tab starts bookmarked.
+  // What is already highlighted, underlined and noted on each website:
+  // [the words, colour (or none), underlined?, the note, the website the note links to].
+  // Notes are casual, the way someone reacts while reading: a thought, a joke, what it calls to mind. Never
+  // reminders or errands, and nothing lofty (the owner, 2026-11-18).
+  const NOTED = {
+    brain: [
+      ["plugged in his brain", "honey", 0, "reminds me of this one on what a mind even is:", "noema"],
+      ["like a cyberpunk mohawk", "", 1],
+      ["They record his neural signals", "sky", 0],
+      ["“That’s nice,” Buckwalter said, admiring the image.", "rose", 0, "imagine saying “that’s nice” about your own motor cortex"],
+    ],
+    noema: [["This is a dream reinvented with every breaking wave of new technology.", "honey", 0, "every new gadget, same dream"], ["But are they, or could they ever be, conscious? And why would that matter?", "", 1], ["both long and mostly unhappy", "rose", 0]],
+    asterisk: [["a Quaker friend informed him that he was generally thought proud", "honey", 0], ["but [he] had a good deal with regard to the appearance of it", "", 1, "looking humble vs being humble. sounds familiar"], ["His affected modesty made others more readily accept his ideas", "sage", 0]],
+  };
+  // The set the owner chose (2026-11-18): the Times story on a man's brain data, its note linking to Noema, then
+  // Asterisk. The other four sets and their pages are in commit ce3bd23; add a row here to choose again.
   const SETS = [
-    { tabs: ["nyt", "aeon", "quanta"], ann: [
-      ["nyt", "the sad dark stretch when the sun seems to set before it rises", "honey", 0, "Every January, without fail."],
-      ["nyt", "It looked like a Renaissance painting of the Garden of Eden", "", 1],
-      ["aeon", "An amateur at best, a flighty rascal at worst", "honey", 0, "Guilty. Happily."],
-      ["aeon", "These are serious times – why take seriously someone for whom nothing is serious?", "", 1],
-      ["quanta", "Molecules entangled themselves in self-sustaining, self-reproducing loops.", "", 1],
-      ["quanta", "At some point, they had come to life.", "sky", 0, "The whole mystery, in eight words."],
-    ] },
-    { tabs: ["nyt", "aeon", "quanta"], ann: [
-      ["nyt", "praying that the internet would serve me something good", "sage", 0, "Aren’t we all."],
-      ["nyt", "a big messy tangle of sticks and branches", "honey", 0],
-      ["nyt", "the sort of sun-splashed paradise the word “sublime” was invented to describe", "", 1, "Look up who first used the word this way."],
-      ["aeon", "why take an interest in someone whose own interests are never more than a passing hobby?", "iris", 0, "Is a passing hobby really so bad?"],
-      ["aeon", "None of it is flattering.", "", 1],
-      ["aeon", "‘without real commitment or knowledge’", "honey", 0],
-      ["quanta", "conditions on Earth were right for a great chemical experiment to begin", "honey", 0],
-      ["quanta", "It communicated, ate some of its neighbors and lived inside others", "rose", 0, "Ask Dara which came first."],
-      ["quanta", "Over time, these systems became more complex.", "", 1],
-    ] },
-    { tabs: ["nyt", "aeon", "quanta"], ann: [
-      ["nyt", "Instantly, a new world filled my screen.", "honey", 1, "Send this to Mum. She watches the same nest."],
-      ["aeon", "Why, of all people, defend the dilettante?", "sky", 0, "For the essay: start here."],
-      ["quanta", "At some point, they had come to life.", "honey", 1, "Read this again before the exam."],
-    ] },
-    { tabs: ["bacon", "thoreau", "emerson"], ann: [
-      ["bacon", "Some books are to be tasted, others to be swallowed, and some few to be chewed and digested", "honey", 0, "And a few to be written in."],
-      ["bacon", "Studies serve for delight, for ornament, and for ability.", "", 1],
-      ["bacon", "Reading maketh a full man; conference a ready man; and writing an exact man.", "sky", 0],
-      ["thoreau", "I went to the woods because I wished to live deliberately", "honey", 0],
-      ["thoreau", "Our life is frittered away by detail.", "", 1, "Mine mostly by email."],
-      ["emerson", "To believe your own thought", "", 1],
-      ["emerson", "In every work of genius we recognize our own rejected thoughts", "sage", 0, "Uncomfortably true."],
-    ] },
-    { tabs: ["aeon", "bacon", "quanta"], ann: [
-      ["aeon", "An amateur at best, a flighty rascal at worst", "honey", 0, "Guilty. Happily."],
-      ["aeon", "These are serious times – why take seriously someone for whom nothing is serious?", "", 1],
-      ["bacon", "Some books are to be tasted, others to be swallowed, and some few to be chewed and digested", "honey", 0, "And a few to be written in."],
-      ["bacon", "Studies serve for delight, for ornament, and for ability.", "", 1],
-      ["quanta", "Molecules entangled themselves in self-sustaining, self-reproducing loops.", "", 1],
-      ["quanta", "At some point, they had come to life.", "sky", 0, "The whole mystery, in eight words."],
-    ] },
+    { tabs: ["brain", "noema", "asterisk"] },
   ];
   // Each variation's words, type and layout: f the face, w its weight, t its letter spacing, s its size;
   // k its layout: "split" (headline left, button right), "left", "two" (one sentence in two tones), "grey" or "honey" (a panel).
@@ -458,7 +450,8 @@
     const a = fa.v, b = fb.v, W = sheet.offsetWidth, H = sheet.offsetHeight, fold = $("fold");
     if (a < .5 || b < .5) { sheet.style.clipPath = "none"; fold.style.display = "none"; return; }
     fold.style.display = "";
-    sheet.style.clipPath = `polygon(0 0, ${W - a}px 0, ${W}px ${b}px, ${W}px 100%, 0 100%)`;
+    // The page is cut a hair inside the crease, so the flap overlaps the cut and nothing of the page shows along it.
+    sheet.style.clipPath = `polygon(0 0, ${W - a - .8}px 0, ${W}px ${b + .8}px, ${W}px 100%, 0 100%)`;
     // The cut-off corner, mirrored across the crease: where the tip of the flap lies on the page.
     const d = a * a + b * b, tx = W - 2 * a * b * b / d, ty = 2 * a * a * b / d;
     const r = .09 * Math.min(a, b);
@@ -468,9 +461,11 @@
     g.setAttribute("x1", W - a / 2); g.setAttribute("y1", b / 2); g.setAttribute("x2", tx); g.setAttribute("y2", ty);
     const em = corner() / 3.5, lift = Math.min(1, Math.min(a, b) / corner());
     const shade = $("earshade");
-    shade.setAttribute("d", $("ear").getAttribute("d"));
-    shade.setAttribute("transform", `translate(${-.1 * em} ${.2 * em})`);
-    shade.setAttribute("fill", `rgba(0,0,0,${.26 * lift})`);
+    // The shadow is cast by the lifted tip alone: it starts from nothing at the two ends of the crease, where the
+    // paper is still joined to the page, and is widest under the tip.
+    shade.setAttribute("d", `M${W - a} 0L${W} ${b}L${tx - .2 * em * lift} ${ty + .32 * em * lift}Z`);
+    shade.removeAttribute("transform");
+    shade.setAttribute("fill", `rgba(0,0,0,${.3 * lift})`);
     $("earblur").setAttribute("stdDeviation", .17 * em);
     $("onpagepath").setAttribute("d", `M0 0L${W - a} 0L${W} ${b}L${W} ${H}L0 ${H}Z`);
   }
@@ -502,7 +497,19 @@
     desk.style.setProperty("--paper", getComputedStyle(pages[i]).getPropertyValue("--paper"));
     // A tab's corner is simply as it was left: nothing folds on changing tabs.
     keep(kept[i], true);
+    fit(pages[i]);
     place();
+  }
+  // On a pictured page, each see-through line is spaced out or drawn in until it is exactly as wide as the real
+  // line beneath it, so a highlight covers the very words it was dragged across.
+  function fit(page) {
+    for (const line of page.querySelectorAll(".ln")) {
+      line.style.letterSpacing = "0";
+      const box = line.getBoundingClientRect(), size = parseFloat(getComputedStyle(line).fontSize), n = line.textContent.trim().length;
+      if (!box.width || n < 2) continue;
+      const u = size / +line.style.getPropertyValue("--f");
+      line.style.letterSpacing = (line.style.getPropertyValue("--w") * u - box.width) / (n - 1) / size + "em";
+    }
   }
   function keep(on, atOnce) {
     kept[current] = on;
@@ -561,7 +568,7 @@
     made.delete(id);
   }
   // Finds words on a page and annotates them: how each set's own highlights are made.
-  function annotate(page, words, ink, line, note) {
+  function annotate(page, words, ink, line, note, link) {
     const walk = document.createTreeWalker(page.querySelector(".col"), NodeFilter.SHOW_TEXT), nodes = [];
     let text = "";
     for (let n; n = walk.nextNode();) { nodes.push([n, text.length]); text += n.data; }
@@ -575,23 +582,39 @@
     const id = wrap(range, page), a = made.get(id);
     a.ink = ink; a.line = !!line;
     if (note) write(id).textContent = note;
+    if (link) card(a, link);
     paint(id);
   }
-  // A note lies in the margin beside the first of its words.
+  // A note lies in the margin beside the first of its words. What is typed is its first part; a link's card follows.
   function write(id) {
     const a = made.get(id);
-    if (a.note) return a.note;
-    const note = a.note = document.createElement("span");
-    note.className = "note"; note.contentEditable = "true"; note.spellcheck = false;
-    note.addEventListener("keydown", e => { if (e.key == "Enter" || e.key == "Escape") { e.preventDefault(); note.blur(); } e.stopPropagation(); });
-    note.addEventListener("blur", () => {
-      note.textContent = note.textContent.trim();
-      if (!note.textContent) { note.remove(); a.note = null; if (made.has(id)) paint(id); }
+    if (a.note) return a.note.firstChild;
+    const note = a.note = document.createElement("span"), words = document.createElement("span");
+    note.className = "note"; words.className = "nw"; words.contentEditable = "true"; words.spellcheck = false;
+    note.append(words);
+    words.addEventListener("keydown", e => { if (e.key == "Enter" || e.key == "Escape") { e.preventDefault(); words.blur(); } e.stopPropagation(); });
+    words.addEventListener("blur", () => {
+      words.textContent = words.textContent.trim();
+      if (!words.textContent && !note.querySelector(".card")) { note.remove(); a.note = null; if (made.has(id)) paint(id); }
       place();
     });
-    note.addEventListener("input", place);
+    words.addEventListener("input", place);
     spans(id)[0].closest("p, h2, h3").append(note);
-    return note;
+    return words;
+  }
+  // A link in a note: the linked website's picture, title and name, and a tick for each highlight already on it.
+  // Pressing the picture or title goes to that website's tab; pressing the ticks unfolds its highlights.
+  function card(a, k) {
+    const site = SITES[k], marks = NOTED[k], tint = m => m[1] ? INKS[m[1]] : "#E5342B";
+    const c = document.createElement("span");
+    c.className = "card";
+    c.innerHTML = `<span class="cgo"><img src="card-${k}.jpg" alt=""><span class="ct">${site.head}</span><span class="cs"><i style="background:${site.colour}">${site.fav}</i>${site.name}</span></span>`
+      + `<span class="cmarks">${marks.map(m => `<i style="background:${tint(m)}"></i>`).join("")}<span>${marks.length} highlights</span></span>`
+      + `<span class="cq">${marks.map(m => `<span><i style="background:${tint(m)}"></i><em>${m[0]}</em></span>`).join("")}</span>`;
+    c.querySelector(".cgo").addEventListener("click", () => { const i = SETS[set].tabs.indexOf(k); if (i >= 0) open(i); });
+    c.querySelector(".cmarks").addEventListener("click", () => { c.classList.toggle("open"); place(); });
+    c.querySelector("img").addEventListener("load", place);
+    a.note.append(c);
   }
   // Notes sit level with their words, and step down so that no two overlap.
   function place() {
@@ -641,10 +664,10 @@
     else if (b.dataset.do == "line") { a.line = !a.line; paint(id); raise(id); }
     else if (b.dataset.do == "note") {
       if (bare(a)) a.ink = "honey";
-      const note = write(id);
+      const words = write(id);
       paint(id); cur = 0; pal.hidden = true; place();
-      note.focus({ preventScroll: true });
-      getSelection().selectAllChildren(note); getSelection().collapseToEnd();
+      words.focus({ preventScroll: true });
+      getSelection().selectAllChildren(words); getSelection().collapseToEnd();
     }
     else if (bare(a)) { navigator.clipboard?.writeText(spans(id).map(s => s.textContent).join("")).catch(() => {}); done(); }
     else { cur = 0; pal.hidden = true; remove(id); place(); }
@@ -675,7 +698,7 @@
     all.forEach(p => { p.innerHTML = plain.get(p.dataset.key); p.classList.remove("on"); });
     pages = S.tabs.map(k => all.find(p => p.dataset.key == k));
     kept = S.tabs.map((_, i) => i == 0);
-    for (const [k, words, ink, line, note] of S.ann) annotate(pages[S.tabs.indexOf(k)], words, ink, line, note);
+    for (const k of S.tabs) for (const [words, ink, line, note, link] of S.alt?.[k] || NOTED[k]) annotate(pages[S.tabs.indexOf(k)], words, ink, line, note, link);
     $("tabs").innerHTML = S.tabs.map((k, i) => `<button class="tab" role="tab" data-i="${i}"><i class="fav" style="background:${SITES[k].colour}">${SITES[k].fav}</i><span>${SITES[k].title}</span><i class="dot"></i></button>`).join("");
     tabs = [...document.querySelectorAll(".tab")];
     // Tabs change on the press, as ibid's do.
@@ -683,7 +706,7 @@
       t.addEventListener("pointerdown", () => open(+t.dataset.i));
       t.addEventListener("click", () => open(+t.dataset.i));
     });
-    open(0);
+    open(Math.min(2, Math.max(0, (+new URLSearchParams(location.search).get("tab") || 1) - 1)));
     // The circles show only on this Mac or when the address asks for a set (?a=2): never to a visitor of the site itself.
     if (!CHOOSING) return;
     $("pick").innerHTML = SETS.map((_, i) => `<button aria-pressed="${i == n}" onclick="choose(${i})">${i + 1}</button>`).join("");
@@ -710,7 +733,7 @@
     document.querySelectorAll(".halo path").forEach(p => p.setAttribute("d", shape));
     lift.style.clipPath = `path("${smooth(lift.offsetWidth, lift.offsetHeight + 40, 14 * point)}")`;
     // The corner and the notes are measured in the window's own points, so they follow its size.
-    if (pages.length) { if (!turning) turn(kept[current], true); place(); done(); }
+    if (pages.length) { if (!turning) turn(kept[current], true); fit(pages[current]); place(); done(); }
   }
   new ResizeObserver(corners).observe(document.querySelector(".in"));
 
@@ -733,7 +756,7 @@
   const CHOOSING = SETS.length > 1 && (location.protocol == "file:" || /^(localhost|127\.)/.test(location.hostname) || new URLSearchParams(location.search).has("a"));
   show(1);
   choose(Math.min(SETS.length, Math.max(1, +new URLSearchParams(location.search).get("a") || 1)) - 1);
-  addEventListener("keydown", e => { if (CHOOSING && !e.metaKey && !e.ctrlKey && !e.target.closest?.(".note") && +e.key >= 1 && +e.key <= SETS.length) choose(+e.key - 1); });
+  addEventListener("keydown", e => { if (CHOOSING && !e.metaKey && !e.ctrlKey && !e.target.closest?.(".note") && +e.key >= 1 && +e.key <= Math.min(9, SETS.length)) choose(+e.key - 1); });
 </script>
 </body>
 </html>
