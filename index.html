@@ -97,12 +97,16 @@
   .page.on { display: block; }
   .page ::selection { background: #CFE3FB; }
   /* A highlight, an underline, or words waiting for a colour: drawn behind the words alone, as ibid draws them. */
-  .hl { border-radius: .2em; padding: .08em .14em; margin: 0 -.14em; box-decoration-break: clone; -webkit-box-decoration-break: clone; cursor: pointer; }
-  .hl.sel { background: #CFE3FB; }
-  .hl.honey { background: #FFE97D; } .hl.sage { background: #BDFAA8; } .hl.sky { background: #ABECFF; } .hl.rose { background: #FFBEDD; } .hl.iris { background: #DCCBFF; }
+  /* The colour reaches a little past the words at each end as a shadow, not as padding, and the page's lines are
+     not re-balanced when their words change: so highlighting never moves a word. */
+  .page p, .page h2, .page h3 { text-wrap: wrap; }
+  .hl { border-radius: .2em; padding: .08em 0; box-decoration-break: clone; -webkit-box-decoration-break: clone; cursor: pointer;
+    background: var(--c, transparent); box-shadow: .14em 0 0 var(--c, transparent), -.14em 0 0 var(--c, transparent); }
+  .hl.sel { --c: #CFE3FB; }
+  .hl.honey { --c: #FFE97D; } .hl.sage { --c: #BDFAA8; } .hl.sky { --c: #ABECFF; } .hl.rose { --c: #FFBEDD; } .hl.iris { --c: #DCCBFF; }
   .hl.line { text-decoration: underline #E5342B .1em; text-underline-offset: .2em; }
   .hl.arrives { animation: arrive .16s ease-out; }
-  @keyframes arrive { from { background-color: transparent; } }
+  @keyframes arrive { from { background-color: transparent; box-shadow: .14em 0 0 transparent, -.14em 0 0 transparent; } }
   .col p, .col h2 { position: relative; }
   /* The colours that rise over highlighted words: ibid's own bar, to the point. */
   .pal { position: absolute; z-index: 6; height: 2.875em; padding: 0 .5625em; display: flex; align-items: center; gap: .25em; border-radius: 1.4375em; transform: translate(-50%, -50%);
@@ -167,7 +171,7 @@
   .shot .ln { position: absolute; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); white-space: nowrap; color: transparent;
     font: calc(var(--f) * var(--u))/calc(var(--h) * var(--u)) Georgia, "Times New Roman", serif; }
   .shot ::selection { background: rgba(70,140,255,.28); color: transparent; }
-  .shot .hl { mix-blend-mode: multiply; padding: 0 .1em; margin: 0 -.1em; }
+  .shot .hl { mix-blend-mode: multiply; padding: 0; box-shadow: .1em 0 0 var(--c, transparent), -.1em 0 0 var(--c, transparent); }
   .shot .hl.line { text-decoration-skip-ink: none; -webkit-text-decoration-skip: none; }
   /* The other real websites, each from a few values: paper, masthead, headline and body type. */
   .site { --paper: #fff; }
