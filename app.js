@@ -378,6 +378,12 @@
   // ---------- The bookmarks list and settings ----------
   // Popovers under their buttons in the row (`BookmarksButton`, `SettingsButton`): the list holds the pages whose
   // bookmark is pressed, and settings is the app's own form, whose switches turn but change nothing here.
+  // Bookmarks already kept, as someone who reads a lot might have (the owner asked for "a bunch of bookmarks to
+  // good sites", 2026-11-19). The app lists twelve at most; pressing one of these only closes the list, since
+  // the window can't go to a website it has no page of.
+  const SAVED = [["The New York Times", "nytimes.com", "#111"], ["Longreads", "longreads.com", "#D7141A"], ["The New Yorker", "newyorker.com", "#222"], ["The Atlantic", "theatlantic.com", "#E2231A"],
+    ["London Review of Books", "lrb.co.uk", "#1F3A5F"], ["The Paris Review", "theparisreview.org", "#444"], ["Works in Progress", "worksinprogress.co", "#2E5E4E"], ["The Marginalian", "themarginalian.org", "#B8900A"],
+    ["Paul Graham", "paulgraham.com", "#777"], ["Financial Times", "ft.com", "#C58B66"], ["Arts & Letters Daily", "aldaily.com", "#7A1F1F"]];
   let pop = null, popFor = null;
   function closePop() { pop?.remove(); pop = null; popFor?.classList.remove("on"); popFor = null; }
   function drop(button, cls, html) {
@@ -398,7 +404,8 @@
   addEventListener("pointerdown", e => { if (pop && !pop.contains(e.target) && !e.target.closest(".gb")) closePop(); }, true);
   addEventListener("keydown", e => { if (e.key == "Escape") closePop(); });
   glyphs[0].addEventListener("click", () => {
-    const rows = KEYS.map((k, i) => kept[i] ? `<button data-i="${i}"><i class="fav" style="background:${SITES[k].colour}">${SITES[k].fav}</i><span class="nm">${READERS[k].title}</span><span class="st">${web[k].dataset.host}</span></button>` : "").join("");
+    const rows = (KEYS.map((k, i) => kept[i] ? `<button data-i="${i}"><i class="fav" style="background:${SITES[k].colour}">${SITES[k].fav}</i><span class="nm">${READERS[k].title}</span><span class="st">${web[k].dataset.host}</span></button>` : "").join("")
+      + SAVED.map(([name, host, colour]) => `<button><i class="fav" style="background:${colour}">${name.replace(/^The /, "")[0]}</i><span class="nm">${name}</span><span class="st">${host}</span></button>`).join(""));
     const p = drop(glyphs[0], "marks", rows ? rows + `<hr><button data-all><span class="nm">Show All Bookmarks</span></button>` : `<p class="none">Press the bookmark by the address on any page to keep it here.</p>`);
     p?.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; closePop(); if (b.dataset.i) open(+b.dataset.i); });
   });
