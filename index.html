@@ -309,28 +309,10 @@
   body.s-none .halo .cast { display: none; }
   body.s-glow .halo .cast { fill: rgba(246,200,60,.6); }
   /* Other places for the icon. */
-  /* Where the name goes: twelve ways being chosen between (the owner, 2026-11-19: "shouldn't we have ibid somewhere on
-     the site… gimme a bunch of options of where it can go and how it could look"). ?n=<1-12>, or the circles. */
-  .mast { display: flex; align-items: center; gap: 14px; margin: 0 0 16px -4px; }
+  /* The name is in the small print by the button ("ibid for Mac · Free · macOS 15.2 or later"), the owner's choice
+     from twelve places and looks (2026-11-19; the others are in commit d6be65b). */
+  .mast { margin: 0 0 16px -4px; }
   .mast .bigicon { margin: 0; }
-  .wm { display: none; color: var(--ink); line-height: 1; }
-  body[data-n="2"] .wm { display: block; font: 500 36px var(--serif); letter-spacing: -.01em; }
-  body[data-n="3"] .wm { display: block; font: 600 31px var(--sans); letter-spacing: -.035em; }
-  body[data-n="4"] .wm { display: block; font: italic 400 38px var(--serif); }
-  body[data-n="5"] .mast { flex-direction: column; align-items: flex-start; gap: 8px; margin-left: 0; }
-  body[data-n="5"] .mast .bigicon { margin-left: -4px; }
-  body[data-n="5"] .wm { display: block; font: 500 19px var(--serif); color: var(--grey); }
-  body[data-n="6"] .wm { display: block; font: 500 34px var(--serif); background: #FFE97D; padding: .06em .2em .1em; border-radius: .16em; }
-  body[data-n="7"] .wm { display: block; font: 500 36px var(--serif); text-decoration: underline #E5342B .07em; text-underline-offset: .2em; }
-  body[data-n="8"] .mast { position: absolute; left: 28px; top: 22px; margin: 0; gap: 9px; }
-  body[data-n="8"] .mast .bigicon { display: block; width: 30px; height: 30px; }
-  body[data-n="8"] .wm { display: block; font: 600 19px var(--sans); letter-spacing: -.02em; }
-  body[data-n="9"] .mast { gap: .32em; margin: 0 0 .1em -2px; font-size: var(--hs); }
-  body[data-n="9"] .mast .bigicon { width: 1.05em; height: 1.05em; }
-  body[data-n="9"] .wm { display: block; font: var(--hw) 1em var(--hf); letter-spacing: var(--ht); }
-  body[data-n="12"] .mast { gap: 16px; }
-  body[data-n="12"] .mast .bigicon { width: 52px; height: 52px; }
-  body[data-n="12"] .wm { display: block; font: 400 50px var(--serif); letter-spacing: -.02em; }
   .bigicon { display: none; width: 60px; height: 60px; margin: 0 0 16px -4px; }
   body.l-big .bigicon { display: block; }
   body.l-big .brand, body.l-in .brand { display: none; }
@@ -349,12 +331,12 @@
 <main>
   <span class="brand"><img src="icon.png" alt="">ibid</span>
   <div class="words">
-    <div class="mast"><img class="bigicon" src="icon.png" alt=""><span class="wm">ibid</span></div>
+    <div class="mast"><img class="bigicon" src="icon.png" alt=""></div>
     <h1 id="head"></h1>
     <p class="lede" id="lede"></p>
     <div class="act">
       <a class="get" href="https://github.com/fiachramacfadden/ibid-releases/releases/latest/download/ibid.dmg"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5v8M4.5 7.5 8 11l3.5-3.5M3 13.5h10"/></svg><img class="gi" src="icon.png" alt=""><span class="gw"><span class="gt" id="cta">Download for Mac</span><span class="gs">Free · macOS 15.2 or later</span></span></a>
-      <p class="small">Free · macOS 15.2 or later</p>
+      <p class="small">ibid for Mac · Free · macOS 15.2 or later</p>
     </div>
   </div>
 
@@ -927,18 +909,6 @@
   choose(Math.min(SETS.length, Math.max(1, +new URLSearchParams(location.search).get("a") || 1)) - 1);
   addEventListener("keydown", e => { if (CHOOSING && !e.metaKey && !e.ctrlKey && !e.target.closest?.(".note") && +e.key >= 1 && +e.key <= Math.min(9, SETS.length)) choose(+e.key - 1); });
 
-  // Where the name goes (see `.mast`): 1 is the page as it was, with no name.
-  const NAMES = 12, named = new URLSearchParams(location.search).get("n");
-  function wordmark(n) {
-    document.body.dataset.n = n;
-    $("cta").textContent = n == 10 ? "Download ibid" : "Download for Mac";
-    document.querySelector(".small").textContent = n == 11 ? "ibid for Mac · Free · macOS 15.2 or later" : "Free · macOS 15.2 or later";
-    if (!(named || location.protocol == "file:" || /^(localhost|127\.)/.test(location.hostname))) return;
-    $("pick").innerHTML = Array.from({ length: NAMES }, (_, i) => `<button aria-pressed="${i + 1 == n}" onclick="wordmark(${i + 1})">${i + 1}</button>`).join("");
-    history.replaceState(null, "", "?n=" + n);
-    corners();
-  }
-  wordmark(Math.min(NAMES, Math.max(1, +named || 1)));
 </script>
 <script src="readers.js?2"></script>
 <script src="app.js?6"></script>
