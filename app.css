@@ -137,5 +137,13 @@
    page (the owner, 2026-11-19: "we can't have this"). The shadow goes with the frame when the row slides away. */
 .in { background: #fff; }
 .row { background: #fff; }
-.desk::before { content: ""; position: absolute; inset: 0; border-radius: calc(14 * var(--u)) calc(14 * var(--u)) 0 0; box-shadow: 0 0 calc(32 * var(--u)) rgba(0,0,0,.12); pointer-events: none; transition: opacity .5s; }
-.in.tucked .desk::before { opacity: 0; transition-duration: 1.6s; }
+/* The shadow is cast by a white shape under the sheet, cut exactly as the sheet is (`shade` in app.js), so along a
+   turned corner it follows the crease and the desk behind the fold is shaded, as in the app, never a square
+   corner's shadow with bare white inside it. */
+.shade { position: absolute; inset: 0; pointer-events: none; filter: drop-shadow(0 0 calc(16 * var(--u)) rgba(0,0,0,.13)) drop-shadow(0 .5px calc(2.5 * var(--u)) rgba(0,0,0,.16)); transition: opacity .5s; }
+.shade i { position: absolute; inset: 0; background: #fff; }
+/* The desk behind a turned corner lies in the flap's shade: darkest along the crease, gone by the corner's tip, so
+   it is never bare white and has no edge of its own. */
+.shadow-in { position: absolute; right: 0; top: 0; pointer-events: none; clip-path: polygon(0 0, 100% 0, 100% 100%); background: linear-gradient(to top right, rgba(0,0,0,.17) 50%, rgba(0,0,0,.05) 78%, rgba(0,0,0,0) 100%); transition: opacity .5s; }
+.in.tucked .shadow-in, .in.hl .shadow-in { opacity: 0; }
+.in.tucked .shade { opacity: 0; transition-duration: 1.6s; }

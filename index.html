@@ -44,6 +44,9 @@
   .get:active { transform: scale(.97); }
   @media (hover: hover) { .get:hover { background: #000; } }
   .get:focus-visible, .ibid button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  /* The one way to reach ibid's maker (the owner asked for their address to be on the site, 2026-11-19). */
+  .hello { position: absolute; right: 28px; top: 24px; z-index: 2; color: var(--grey); font: 13px var(--sans); letter-spacing: -0.003em; text-decoration: none; }
+  .hello:hover { color: var(--ink); }
   .small { color: var(--grey); font-size: 13px; margin-top: 12px; font-family: var(--sans); letter-spacing: -0.003em; }
   .stage { flex: 1; min-height: 0; margin-top: clamp(24px, 4.4svh, 56px); padding: 0 0 0 max(4vw, calc((100vw - var(--w)) / 2)); }
 
@@ -325,11 +328,12 @@
   .pick button { width: 25px; height: 25px; border-radius: 13px; border: 1px solid rgba(0,0,0,.18); background: #fff; }
   .pick button[aria-pressed="true"] { background: #1e1e1e; color: #fff; }
 </style>
-<link rel="stylesheet" href="app.css?5">
+<link rel="stylesheet" href="app.css?7">
 </head>
 <body data-v="1">
 <main>
   <span class="brand"><img src="icon.png" alt="">ibid</span>
+  <a class="hello" href="mailto:fiki@zhiyin.dev?subject=ibid">Say hello</a>
   <div class="words">
     <div class="mast"><img class="bigicon" src="icon.png" alt=""></div>
     <h1 id="head"></h1>
@@ -911,6 +915,6 @@
 
 </script>
 <script src="readers.js?2"></script>
-<script src="app.js?6"></script>
+<script src="app.js?7"></script>
 </body>
 </html>
