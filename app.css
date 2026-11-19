@@ -110,3 +110,37 @@
 .h-card { display: flex; gap: calc(10 * var(--u)); padding: calc(6 * var(--u)) calc(9 * var(--u)); background: #FAFAFA; border: .75px solid rgba(0,0,0,.14); border-radius: calc(4 * var(--u)); font: 400 calc(15 * var(--u))/1.35 var(--serif); color: rgba(0,0,0,.88); letter-spacing: 0; text-indent: 0; overflow-wrap: anywhere; }
 .h-card::before { content: ""; flex: none; width: calc(3 * var(--u)); border-radius: calc(2 * var(--u)); background: var(--ink); }
 .h-card::after { content: attr(data-note); white-space: pre-wrap; }
+
+/* The bookmarks list and settings: popovers that drop from their buttons in the row, as the Mac draws them. */
+.pop { position: absolute; z-index: 9; box-sizing: border-box; border-radius: calc(14 * var(--u)); background: rgba(246,246,246,.94); -webkit-backdrop-filter: blur(calc(30 * var(--u))) saturate(1.8); backdrop-filter: blur(calc(30 * var(--u))) saturate(1.8);
+  box-shadow: 0 0 0 .5px rgba(0,0,0,.2), 0 calc(12 * var(--u)) calc(34 * var(--u)) rgba(0,0,0,.22); font-family: var(--serif); color: #1e1e1e; cursor: default; transform-origin: var(--ax) calc(-8 * var(--u)); animation: pop .16s ease-out; }
+@keyframes pop { from { opacity: 0; transform: scale(.96); } }
+.pop::before { content: ""; position: absolute; left: var(--ax); top: calc(-6 * var(--u)); width: calc(13 * var(--u)); height: calc(13 * var(--u)); margin-left: calc(-6.5 * var(--u)); background: inherit; transform: rotate(45deg); box-shadow: calc(-.5 * var(--u)) calc(-.5 * var(--u)) 0 rgba(0,0,0,.2); border-radius: calc(3 * var(--u)) 0 0 0; }
+.pop .inner { position: relative; max-height: inherit; overflow: hidden auto; border-radius: inherit; scrollbar-width: none; }
+.pop .inner::-webkit-scrollbar { display: none; }
+.marks { width: calc(340 * var(--u)); }
+.marks .inner { padding: calc(8 * var(--u)); display: flex; flex-direction: column; gap: calc(2 * var(--u)); }
+.marks button { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: calc(10 * var(--u)); height: calc(32 * var(--u)); padding: 0 calc(8 * var(--u)); border-radius: calc(8 * var(--u)); flex: none; }
+.marks button:hover { background: rgba(0,0,0,.06); }
+.marks .fav { flex: none; width: calc(16 * var(--u)); height: calc(16 * var(--u)); border-radius: calc(3.5 * var(--u)); display: grid; place-items: center; font: 700 calc(10 * var(--u))/1 var(--serif); color: #fff; font-style: normal; }
+.marks .nm { flex: 1; min-width: 0; font-size: calc(14 * var(--u)); color: rgba(0,0,0,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.marks .st { font-size: calc(12 * var(--u)); color: rgba(0,0,0,.5); white-space: nowrap; }
+.marks hr { border: 0; border-top: calc(1 * var(--u)) solid rgba(0,0,0,.1); margin: calc(4 * var(--u)) 0; width: 100%; }
+.marks .none { margin: 0; padding: calc(12 * var(--u)); font-size: calc(13 * var(--u)); line-height: 1.35; color: rgba(0,0,0,.5); }
+.sets { width: calc(400 * var(--u)); }
+.sets .inner { padding: calc(6 * var(--u)) calc(20 * var(--u)) calc(20 * var(--u)); font-size: calc(14 * var(--u)); line-height: 1.3; }
+.sets h4 { margin: calc(18 * var(--u)) 0 calc(8 * var(--u)) calc(2 * var(--u)); font: 600 calc(14 * var(--u))/1.2 var(--serif); color: #1e1e1e; }
+.sets .box { border-radius: calc(10 * var(--u)); background: rgba(0,0,0,.035); box-shadow: inset 0 0 0 .5px rgba(0,0,0,.06); padding: 0 calc(12 * var(--u)); }
+.sets .ln { display: flex; align-items: center; justify-content: space-between; gap: calc(12 * var(--u)); min-height: calc(40 * var(--u)); padding: calc(8 * var(--u)) 0; box-sizing: border-box; }
+.sets .ln + .ln { border-top: calc(1 * var(--u)) solid rgba(0,0,0,.08); }
+.sets .dim { color: rgba(0,0,0,.5); }
+.sets .small { font-size: calc(11.5 * var(--u)); }
+.sets .btn { all: unset; box-sizing: border-box; height: calc(24 * var(--u)); padding: 0 calc(10 * var(--u)); border-radius: calc(6 * var(--u)); background: #fff; box-shadow: 0 0 0 .5px rgba(0,0,0,.14), 0 .5px calc(1.5 * var(--u)) rgba(0,0,0,.14); font-size: calc(14 * var(--u)); white-space: nowrap; display: inline-flex; align-items: center; }
+.sets .btn:active { background: #f0f0f0; }
+.sets .btn[disabled] { color: rgba(0,0,0,.3); }
+.sets .sw { all: unset; flex: none; width: calc(38 * var(--u)); height: calc(22 * var(--u)); border-radius: calc(11 * var(--u)); background: rgba(0,0,0,.14); position: relative; transition: background .16s ease-out; }
+.sets .sw::after { content: ""; position: absolute; left: calc(2 * var(--u)); top: calc(2 * var(--u)); width: calc(18 * var(--u)); height: calc(18 * var(--u)); border-radius: calc(9 * var(--u)); background: #fff; box-shadow: 0 calc(1 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.3); transition: transform .16s ease-out; }
+.sets .sw[aria-checked="true"] { background: #34C759; }
+.sets .sw[aria-checked="true"]::after { transform: translateX(calc(16 * var(--u))); }
+.sets select { -webkit-appearance: none; appearance: none; border: 0; outline: none; height: calc(24 * var(--u)); padding: 0 calc(24 * var(--u)) 0 calc(10 * var(--u)); border-radius: calc(6 * var(--u)); background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.2 4.300L5 1.600l2.800 2.700M2.200 7.700L5 10.400l2.800-2.700'/%3E%3C/svg%3E") no-repeat right calc(8 * var(--u)) center / calc(8 * var(--u)) calc(10 * var(--u));
+  box-shadow: 0 0 0 .5px rgba(0,0,0,.14), 0 .5px calc(1.5 * var(--u)) rgba(0,0,0,.14); font: calc(14 * var(--u)) var(--serif); color: #1e1e1e; }

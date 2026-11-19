@@ -375,14 +375,55 @@
     desk.append(p);
   });
 
+  // ---------- The bookmarks list and settings ----------
+  // Popovers under their buttons in the row (`BookmarksButton`, `SettingsButton`): the list holds the pages whose
+  // bookmark is pressed, and settings is the app's own form, whose switches turn but change nothing here.
+  let pop = null, popFor = null;
+  function closePop() { pop?.remove(); pop = null; popFor?.classList.remove("on"); popFor = null; }
+  function drop(button, cls, html) {
+    const was = popFor;
+    closePop();
+    if (was == button) return null;
+    pop = el("div", "pop " + cls, `<div class="inner">${html}</div>`); popFor = button;
+    if (button == glyphs[2]) button.classList.add("on");
+    win.append(pop);
+    const u = win.offsetWidth / 1240, w = win.getBoundingClientRect(), b = button.getBoundingClientRect(), mid = b.left + b.width / 2 - w.left;
+    const left = Math.min(Math.max(8 * u, mid - pop.offsetWidth / 2), win.offsetWidth - pop.offsetWidth - 8 * u), top = b.bottom - w.top + 6 * u;
+    pop.style.left = left + "px"; pop.style.top = top + "px";
+    pop.style.setProperty("--ax", mid - left + "px");
+    // The window runs off the foot of the screen, so the popover stops short of what can be seen.
+    pop.style.maxHeight = Math.min(innerHeight, w.bottom) - w.top - top - 12 * u + "px";
+    return pop;
+  }
+  addEventListener("pointerdown", e => { if (pop && !pop.contains(e.target) && !e.target.closest(".gb")) closePop(); }, true);
+  addEventListener("keydown", e => { if (e.key == "Escape") closePop(); });
+  glyphs[0].addEventListener("click", () => {
+    const rows = KEYS.map((k, i) => kept[i] ? `<button data-i="${i}"><i class="fav" style="background:${SITES[k].colour}">${SITES[k].fav}</i><span class="nm">${READERS[k].title}</span><span class="st">${web[k].dataset.host}</span></button>` : "").join("");
+    const p = drop(glyphs[0], "marks", rows ? rows + `<hr><button data-all><span class="nm">Show All Bookmarks</span></button>` : `<p class="none">Press the bookmark by the address on any page to keep it here.</p>`);
+    p?.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; closePop(); if (b.dataset.i) open(+b.dataset.i); });
+  });
+  const prefs = { engine: "Google", block: true, copies: true, signout: false };
+  glyphs[2].addEventListener("click", () => {
+    const sw = (name, label) => `<div class="ln"><span>${label}</span><button class="sw" role="switch" data-pref="${name}" aria-checked="${prefs[name]}" aria-label="${label}"></button></div>`;
+    const p = drop(glyphs[2], "sets",
+      `<h4>Search</h4><div class="box"><div class="ln"><span>Search with</span><select aria-label="Search with">${["Google", "Bing", "DuckDuckGo", "Ecosia", "Kagi"].map(e => `<option${e == prefs.engine ? " selected" : ""}>${e}</option>`).join("")}</select></div></div>`
+      + `<h4>Passwords</h4><div class="box"><div class="ln dim">Passwords you save are kept in your Keychain, and filling one always asks for Touch ID.</div><div class="ln"><button class="btn">Show Saved Passwords…</button></div></div>`
+      + `<h4>Protection</h4><div class="box">${sw("block", "Block ads and trackers")}</div>`
+      + `<h4>Saved Pages</h4><div class="box">${sw("copies", "Keep a copy of every page you highlight")}<div class="ln"><span>Space used</span><span class="dim">3 pages, 412 KB</span></div><div class="ln"><button class="btn">Clear Saved Pages…</button></div><div class="ln dim small">Pages are kept encrypted on this Mac as words and small pictures, never video. Clearing them leaves every highlight and note in place.</div></div>`
+      + `<h4>Default Browser</h4><div class="box"><div class="ln"><button class="btn">Make ibid Your Default Browser</button></div></div>`
+      + `<h4>Privacy</h4><div class="box">${sw("signout", "Sign out of websites when quitting")}<div class="ln"><button class="btn">Export Highlights…</button></div><div class="ln"><button class="btn">Export Highlights as Markdown…</button></div><div class="ln"><button class="btn">Clear History and Website Data…</button></div></div>`);
+    p?.addEventListener("click", e => { const b = e.target.closest(".sw"); if (b) { prefs[b.dataset.pref] = !prefs[b.dataset.pref]; b.setAttribute("aria-checked", prefs[b.dataset.pref]); } });
+    p?.querySelector("select").addEventListener("change", e => prefs.engine = e.target.value);
+  });
+
   // ---------- Wiring ----------
   br.addEventListener("click", () => inH ? toWebsite() : came && came.i == current ? backToPage() : toggleReader());
   tl.addEventListener("click", backToList);
-  glyphs[1].addEventListener("click", () => inH ? leave() : showHighlights());
+  glyphs[1].addEventListener("click", () => { closePop(); inH ? leave() : showHighlights(); });
   // Choosing a tab closes Highlights; going to another tab forgets the page a website was opened from.
   const open0 = open;
   open = i => {
-    turning?.();
+    turning?.(); closePop();
     if (inH) { places[hkey || ""] = sheet.scrollTop; inH = false; put(pages[current], tops.get(pages[current])); }
     if (came && came.i != i) came = null;
     open0(i);
@@ -397,6 +438,8 @@
   if (/^(highlights|page|menu)/.test(ask)) showHighlights();
   if (/^(page|menu)/.test(ask)) { const [, k, lv] = ask.split("-"); level[k || "brain"] = +lv || 0; openPage(k || "brain"); }
   if (ask == "menu") lvl.click();
+  if (ask == "bookmarks") glyphs[0].click();
+  if (ask == "settings") glyphs[2].click();
   // ?do=test goes through every way between the views and says what it found, in the page's title.
   if (ask == "test") (async () => {
     const wait = () => new Promise(r => setTimeout(r, 300)), seen = [];
