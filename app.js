@@ -376,8 +376,8 @@
   });
 
   // ---------- The bookmarks list and settings ----------
-  // Popovers under their buttons in the row (`BookmarksButton`, `SettingsButton`): the list holds the pages whose
-  // bookmark is pressed, and settings is the app's own form, whose switches turn but change nothing here.
+  // A popover under its button in the row (`BookmarksButton`): the pages whose bookmark is pressed, then some
+  // already kept.
   // Bookmarks already kept, as someone who reads a lot might have (the owner asked for "a bunch of bookmarks to
   // good sites", 2026-11-19). The app lists twelve at most; pressing one of these only closes the list, since
   // the window can't go to a website it has no page of.
@@ -391,7 +391,6 @@
     closePop();
     if (was == button) return null;
     pop = el("div", "pop " + cls, `<div class="inner">${html}</div>`); popFor = button;
-    if (button == glyphs[2]) button.classList.add("on");
     win.append(pop);
     const u = win.offsetWidth / 1240, w = win.getBoundingClientRect(), b = button.getBoundingClientRect(), mid = b.left + b.width / 2 - w.left;
     const left = Math.min(Math.max(8 * u, mid - pop.offsetWidth / 2), win.offsetWidth - pop.offsetWidth - 8 * u), top = b.bottom - w.top + 6 * u;
@@ -409,21 +408,13 @@
     const p = drop(glyphs[0], "marks", rows ? rows + `<hr><button data-all><span class="nm">Show All Bookmarks</span></button>` : `<p class="none">Press the bookmark by the address on any page to keep it here.</p>`);
     p?.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; closePop(); if (b.dataset.i) open(+b.dataset.i); });
   });
-  const prefs = { engine: "Google", block: true, copies: true, signout: false };
-  glyphs[2].addEventListener("click", () => {
-    const sw = (name, label) => `<div class="ln"><span>${label}</span><button class="sw" role="switch" data-pref="${name}" aria-checked="${prefs[name]}" aria-label="${label}"></button></div>`;
-    const p = drop(glyphs[2], "sets",
-      `<h4>Search</h4><div class="box"><div class="ln"><span>Search with</span><select aria-label="Search with">${["Google", "Bing", "DuckDuckGo", "Ecosia", "Kagi"].map(e => `<option${e == prefs.engine ? " selected" : ""}>${e}</option>`).join("")}</select></div></div>`
-      + `<h4>Passwords</h4><div class="box"><div class="ln dim">Passwords you save are kept in your Keychain, and filling one always asks for Touch ID.</div><div class="ln"><button class="btn">Show Saved Passwords…</button></div></div>`
-      + `<h4>Protection</h4><div class="box">${sw("block", "Block ads and trackers")}</div>`
-      + `<h4>Saved Pages</h4><div class="box">${sw("copies", "Keep a copy of every page you highlight")}<div class="ln"><span>Space used</span><span class="dim">3 pages, 412 KB</span></div><div class="ln"><button class="btn">Clear Saved Pages…</button></div><div class="ln dim small">Pages are kept encrypted on this Mac as words and small pictures, never video. Clearing them leaves every highlight and note in place.</div></div>`
-      + `<h4>Default Browser</h4><div class="box"><div class="ln"><button class="btn">Make ibid Your Default Browser</button></div></div>`
-      + `<h4>Privacy</h4><div class="box">${sw("signout", "Sign out of websites when quitting")}<div class="ln"><button class="btn">Export Highlights…</button></div><div class="ln"><button class="btn">Export Highlights as Markdown…</button></div><div class="ln"><button class="btn">Clear History and Website Data…</button></div></div>`);
-    p?.addEventListener("click", e => { const b = e.target.closest(".sw"); if (b) { prefs[b.dataset.pref] = !prefs[b.dataset.pref]; b.setAttribute("aria-checked", prefs[b.dataset.pref]); } });
-    p?.querySelector("select").addEventListener("change", e => prefs.engine = e.target.value);
-  });
+  // The "…" is drawn and does nothing: the owner had settings taken off the website (2026-11-19; the form is in
+  // commit cd08e1b).
+  glyphs[2].disabled = true;
 
   // ---------- Wiring ----------
+  // A button pressed with the pointer doesn't keep the keyboard's ring round it afterwards.
+  win.addEventListener("click", e => { if (e.detail) e.target.closest?.(".gb, .bub, .lvl")?.blur(); });
   br.addEventListener("click", () => inH ? toWebsite() : came && came.i == current ? backToPage() : toggleReader());
   tl.addEventListener("click", backToList);
   glyphs[1].addEventListener("click", () => { closePop(); inH ? leave() : showHighlights(); });
@@ -446,7 +437,6 @@
   if (/^(page|menu)/.test(ask)) { const [, k, lv] = ask.split("-"); level[k || "brain"] = +lv || 0; openPage(k || "brain"); }
   if (ask == "menu") lvl.click();
   if (ask == "bookmarks") glyphs[0].click();
-  if (ask == "settings") glyphs[2].click();
   // ?do=test goes through every way between the views and says what it found, in the page's title.
   if (ask == "test") (async () => {
     const wait = () => new Promise(r => setTimeout(r, 300)), seen = [];
