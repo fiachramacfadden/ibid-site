@@ -13,7 +13,9 @@
 
 /* Glass buttons in the page's corners. */
 .bub, .lvl { all: unset; box-sizing: border-box; position: absolute; z-index: 5; cursor: pointer; color: #1e1e1e; background: rgba(255,255,255,.72); -webkit-backdrop-filter: blur(calc(19 * var(--u))) saturate(1.7); backdrop-filter: blur(calc(19 * var(--u))) saturate(1.7);
-  box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 calc(4 * var(--u)) calc(12 * var(--u)) rgba(0,0,0,.1); transition: transform .56s var(--spring), opacity .24s ease-out; }
+  box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 calc(4 * var(--u)) calc(12 * var(--u)) rgba(0,0,0,.1); transition: transform .56s var(--spring), opacity .48s var(--spring); }
+/* A button that isn't there fades away, and in again, on the app's spring (`Animation.note`). */
+.bub.off, .lvl.off { opacity: 0; pointer-events: none; }
 .bub { width: calc(54 * var(--u)); height: calc(48 * var(--u)); border-radius: calc(24 * var(--u)); display: grid; place-items: center; }
 .bub[hidden], .lvl[hidden] { display: none; }
 .bub svg { width: calc(20 * var(--u)); height: calc(20 * var(--u)); display: block; transition: transform .12s ease-out; }

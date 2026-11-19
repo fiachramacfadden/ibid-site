@@ -321,7 +321,7 @@
   .pick button { width: 25px; height: 25px; border-radius: 13px; border: 1px solid rgba(0,0,0,.18); background: #fff; }
   .pick button[aria-pressed="true"] { background: #1e1e1e; color: #fff; }
 </style>
-<link rel="stylesheet" href="app.css?4">
+<link rel="stylesheet" href="app.css?5">
 </head>
 <body data-v="1">
 <main>
@@ -906,6 +906,6 @@
   addEventListener("keydown", e => { if (CHOOSING && !e.metaKey && !e.ctrlKey && !e.target.closest?.(".note") && +e.key >= 1 && +e.key <= Math.min(9, SETS.length)) choose(+e.key - 1); });
 </script>
 <script src="readers.js?2"></script>
-<script src="app.js?4"></script>
+<script src="app.js?5"></script>
 </body>
 </html>

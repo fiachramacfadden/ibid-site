@@ -92,17 +92,21 @@
     ghost.removeAttribute("id");
     ghost.querySelectorAll("[id]").forEach(e => e.removeAttribute("id"));
     ghost.classList.add("ghost");
-    lift.insertBefore(ghost, how == "cross" ? sheet.nextSibling : sheet);
+    lift.insertBefore(ghost, how == "cross" || how == "out" ? sheet.nextSibling : sheet);
     ghost.scrollTop = y;
     swap();
+    // Highlights itself comes and goes by fading over the page, on the app's spring for such things
+    // (`Animation.note`, .smooth(duration: 0.24), which takes about twice that to settle): "in" fades what
+    // arrives in over what was there, "out" fades what was there off what arrives.
+    const fade = how == "in" || how == "out", time = (fade ? 480 : 240) * SLOW;
     const [g, s] = how == "open" ? [.97, 1.03] : how == "close" ? [1.03, .97] : [1, 1];
-    const o = { duration: 240 * SLOW, easing: "cubic-bezier(.32,.72,0,1)", fill: "both" };
-    const a = ghost.animate([{ transform: "scale(1)", opacity: 1 }, { transform: `scale(${g})`, opacity: 0 }], o);
-    const b = sheet.animate([{ transform: `scale(${s})`, opacity: 0 }, { transform: "scale(1)", opacity: 1 }], o);
+    const o = { duration: time, easing: fade ? getComputedStyle(win).getPropertyValue("--spring").trim() || "ease-out" : "cubic-bezier(.32,.72,0,1)", fill: "both" };
+    const a = ghost.animate([{ transform: "scale(1)", opacity: 1 }, { transform: `scale(${g})`, opacity: how == "in" ? 1 : 0 }], o);
+    const b = sheet.animate([{ transform: `scale(${s})`, opacity: how == "out" ? 1 : 0 }, { transform: "scale(1)", opacity: 1 }], o);
     turning = () => { a.cancel(); b.cancel(); ghost.remove(); turning = null; };
     const mine = turning;
     a.finished.then(() => turning == mine && mine(), () => {});
-    setTimeout(() => turning == mine && mine(), 240 * SLOW + 80);
+    setTimeout(() => turning == mine && mine(), time + 80);
   }
 
   // ---------- The buttons over the page ----------
@@ -125,12 +129,12 @@
   const level = {}, places = {};
   function chrome() {
     const k = KEYS[current], onPage = inH && !!hkey, read = !inH && reading[k];
-    br.hidden = inH && !hkey;
+    br.classList.toggle("off", inH && !hkey);
     br.innerHTML = onPage || read ? GLOBE : LINES;
     br.setAttribute("aria-label", onPage ? "Open Website" : read ? "Show Website" : "Reader View");
     br.classList.toggle("web", !inH && !read);
-    bl.hidden = !(onPage || read);
-    tl.hidden = lvl.hidden = !onPage;
+    bl.classList.toggle("off", !(onPage || read));
+    tl.classList.toggle("off", !onPage); lvl.classList.toggle("off", !onPage);
     for (const b of [br, bl, tl]) b.classList.toggle("hp", onPage);
     if (onPage) lvl.innerHTML = `<span>${LEVELS[level[hkey] || 0]}</span>${UPDOWN}`;
     glyphs[1].classList.toggle("on", inH);
@@ -282,11 +286,13 @@
     done();
     tops.set(pages[current], sheet.scrollTop);
     tuck(false);
-    inH = true; came = null;
-    turn(false, true);
-    if (hkey && marks(hkey).length) { render(hkey); put(hpage, places[hkey]); stack(); }
-    else { hkey = null; put(hlist, places[""]); list(); }
-    chrome();
+    blend("in", () => {
+      inH = true; came = null;
+      turn(false, true);
+      if (hkey && marks(hkey).length) { render(hkey); put(hpage, places[hkey]); stack(); }
+      else { hkey = null; put(hlist, places[""]); list(); }
+      chrome();
+    });
   }
   // Leaves Highlights for a tab, the one you were on unless another is named.
   function leave(i = current) {
@@ -417,7 +423,7 @@
   win.addEventListener("click", e => { if (e.detail) e.target.closest?.(".gb, .bub, .lvl")?.blur(); });
   br.addEventListener("click", () => inH ? toWebsite() : came && came.i == current ? backToPage() : toggleReader());
   tl.addEventListener("click", backToList);
-  glyphs[1].addEventListener("click", () => { closePop(); inH ? leave() : showHighlights(); });
+  glyphs[1].addEventListener("click", () => { closePop(); inH ? blend("out", () => leave()) : showHighlights(); });
   // Choosing a tab closes Highlights; going to another tab forgets the page a website was opened from.
   const open0 = open;
   open = i => {
