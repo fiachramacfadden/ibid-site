@@ -47,6 +47,7 @@
   /* The one way to reach ibid's maker (the owner asked for their address to be on the site, 2026-11-19). */
   .hello { position: absolute; right: 28px; top: 24px; z-index: 2; color: var(--grey); font: 13px var(--sans); letter-spacing: -0.003em; text-decoration: none; }
   .hello:hover { color: var(--ink); }
+  .hello.done { color: var(--ink); }
   .small { color: var(--grey); font-size: 13px; margin-top: 12px; font-family: var(--sans); letter-spacing: -0.003em; }
   .stage { flex: 1; min-height: 0; margin-top: clamp(24px, 4.4svh, 56px); padding: 0 0 0 max(4vw, calc((100vw - var(--w)) / 2)); }
 
@@ -355,7 +356,7 @@
 <body data-v="1">
 <main>
   <span class="brand"><img src="icon.png" alt="">ibid</span>
-  <a class="hello" href="mailto:fiki@zhiyin.dev?subject=ibid">Say hello</a>
+  <a class="hello" href="mailto:fiki@zhiyin.dev?subject=ibid" title="Copy fiki@zhiyin.dev" aria-live="polite">Say hello</a>
   <div class="words">
     <div class="mast"><img class="bigicon" src="icon.png" alt=""></div>
     <h1 id="head"></h1>
@@ -935,6 +936,22 @@
   choose(Math.min(SETS.length, Math.max(1, +new URLSearchParams(location.search).get("a") || 1)) - 1);
   addEventListener("keydown", e => { if (CHOOSING && !e.metaKey && !e.ctrlKey && !e.target.closest?.(".note") && +e.key >= 1 && +e.key <= Math.min(9, SETS.length)) choose(+e.key - 1); });
 
+
+  // "Say hello" copies the maker's address, and says so for a moment (the owner asked for this over starting an
+  // email, 2026-11-19). Where the address can't be copied, it starts an email as before.
+  {
+    const hello = document.querySelector(".hello");
+    let back = 0;
+    hello.addEventListener("click", async e => {
+      if (!navigator.clipboard) return;
+      e.preventDefault();
+      try { await navigator.clipboard.writeText("fiki@zhiyin.dev"); } catch { location.href = hello.href; return; }
+      hello.textContent = "Copied fiki@zhiyin.dev";
+      hello.classList.add("done");
+      clearTimeout(back);
+      back = setTimeout(() => { hello.textContent = "Say hello"; hello.classList.remove("done"); }, 2200);
+    });
+  }
 
   // On a phone the button can't download a Mac app: it hands the page's address to the phone's share sheet, to
   // send to the visitor's own Mac, and the small print says why.
