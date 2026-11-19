@@ -16,16 +16,13 @@
   // The sheet's shadow: a shape under the sheet with the sheet's own outline, rounded at the top and cut along the
   // crease of a turned corner, so the shadow follows the fold.
   const shadow = el("div", "shade", "<i></i>");
-  const under = el("div", "shadow-in");
   desk.insertBefore(shadow, lift);
-  desk.insertBefore(under, lift);
   const draw0 = draw;
   draw = () => {
     draw0();
     const W = sheet.offsetWidth, H = sheet.offsetHeight, r = 14 * W / 1228, a = fa.v, b = fb.v;
     const corner = a < .5 || b < .5 ? `L${W - r} 0A${r} ${r} 0 0 1 ${W} ${r}` : `L${W - a} 0L${W} ${b}`;
     shadow.firstChild.style.clipPath = `path("M0 ${H}L0 ${r}A${r} ${r} 0 0 1 ${r} 0${corner}L${W} ${H}Z")`;
-    under.style.width = a + "px"; under.style.height = b + "px";
   };
   draw();
   // Highlights has no turned corner, whatever the tab behind it has.

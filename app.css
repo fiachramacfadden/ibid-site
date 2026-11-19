@@ -131,19 +131,12 @@
 .marks hr { border: 0; border-top: calc(1 * var(--u)) solid rgba(0,0,0,.1); margin: calc(4 * var(--u)) 0; width: 100%; }
 .marks .none { margin: 0; padding: calc(12 * var(--u)); font-size: calc(13 * var(--u)); line-height: 1.35; color: rgba(0,0,0,.5); }
 
-/* The desk is white and the page lies on it as a sheet with the app's own soft shadow (`SheetView`: black at 12%,
-   radius 16, no offset), so every page, ibid's own near-white ones included, has the same rounded edge. Before
-   this the row and frame were painted grey to stand for that shadow, which made a grey band round a near-white
-   page (the owner, 2026-11-19: "we can't have this"). The shadow goes with the frame when the row slides away. */
-.in { background: #fff; }
-.row { background: #fff; }
-/* The shadow is cast by a white shape under the sheet, cut exactly as the sheet is (`shade` in app.js), so along a
-   turned corner it follows the crease and the desk behind the fold is shaded, as in the app, never a square
-   corner's shadow with bare white inside it. */
-.shade { position: absolute; inset: 0; pointer-events: none; filter: drop-shadow(0 0 calc(16 * var(--u)) rgba(0,0,0,.13)) drop-shadow(0 .5px calc(2.5 * var(--u)) rgba(0,0,0,.16)); transition: opacity .5s; }
+/* The window's row and frame keep the pale grey they have in index.html, so the desk behind a turned corner is
+   that same even grey with no shape of its own. A page's edge is drawn by one close, soft shadow, cast by a
+   shape under the sheet that is cut exactly as the sheet is (`draw` in app.js), so it follows a turned corner's
+   crease and gives ibid's own near-white pages the same rounded edge as a website. Tried and thrown out on
+   2026-11-19: a wide shadow over the grey (a murky band), a white desk (bare white behind the turned corner),
+   and a dark wedge behind the corner ("bro wtf"). */
+.shade { position: absolute; inset: 0; pointer-events: none; filter: drop-shadow(0 .5px calc(2 * var(--u)) rgba(0,0,0,.16)); transition: opacity .5s; }
 .shade i { position: absolute; inset: 0; background: #fff; }
-/* The desk behind a turned corner lies in the flap's shade: darkest along the crease, gone by the corner's tip, so
-   it is never bare white and has no edge of its own. */
-.shadow-in { position: absolute; right: 0; top: 0; pointer-events: none; clip-path: polygon(0 0, 100% 0, 100% 100%); background: linear-gradient(to top right, rgba(0,0,0,.17) 50%, rgba(0,0,0,.05) 78%, rgba(0,0,0,0) 100%); transition: opacity .5s; }
-.in.tucked .shadow-in, .in.hl .shadow-in { opacity: 0; }
 .in.tucked .shade { opacity: 0; transition-duration: 1.6s; }
