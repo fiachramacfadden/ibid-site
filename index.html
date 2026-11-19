@@ -327,6 +327,28 @@
   .pick { position: fixed; left: 12px; bottom: 12px; z-index: 10; display: flex; flex-wrap: wrap; max-width: 460px; gap: 5px; align-items: center; font: 600 12px var(--sans); }
   .pick button { width: 25px; height: 25px; border-radius: 13px; border: 1px solid rgba(0,0,0,.18); background: #fff; }
   .pick button[aria-pressed="true"] { background: #1e1e1e; color: #fff; }
+
+  /* ---------- On a phone ----------
+     ibid is a Mac app, so a phone can't download it: the page says so, and the button sends the page's address to
+     the visitor's own Mac instead (the phone's share sheet: AirDrop, Messages, Mail), which is the usual way to
+     handle it. The window is shown close up, on the article's own column, with the row of tabs left out since
+     there's no room for it; the page inside still scrolls, with its highlights. Notes lie beyond the edge. */
+  @media (max-width: 640px) {
+    :root { --w: 190vw; }
+    main { min-height: 0; }
+    body.left .words { width: auto; margin: 0; padding: clamp(40px, 7svh, 64px) 22px 0; }
+    .mast { margin-bottom: 14px; }
+    body.two h1, body.two .lede { font-size: 25px; white-space: normal; max-width: none; }
+    body.left .act { flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 20px; }
+    body.left .get { height: 46px; font-size: 16px; padding: 0 22px; }
+    .small { font-size: 13.5px; line-height: 1.4; }
+    .hello { right: 22px; top: 18px; }
+    .stage { padding: 0; margin-top: 26px; }
+    .ibid { margin-left: calc((100vw - var(--w)) / 2); }
+    .row { display: none; }
+    .page .note { display: none; }
+    .bub, .lvl { display: none; }
+  }
 </style>
 <link rel="stylesheet" href="app.css?8">
 </head>
@@ -913,6 +935,22 @@
   choose(Math.min(SETS.length, Math.max(1, +new URLSearchParams(location.search).get("a") || 1)) - 1);
   addEventListener("keydown", e => { if (CHOOSING && !e.metaKey && !e.ctrlKey && !e.target.closest?.(".note") && +e.key >= 1 && +e.key <= Math.min(9, SETS.length)) choose(+e.key - 1); });
 
+
+  // On a phone the button can't download a Mac app: it hands the page's address to the phone's share sheet, to
+  // send to the visitor's own Mac, and the small print says why.
+  if (/iPhone|iPod|Android/.test(navigator.userAgent)) {
+    const get = document.querySelector(".get"), small = document.querySelector(".small");
+    $("cta").textContent = "Send to my Mac";
+    small.textContent = "ibid is a Mac app. Open tryibid.com on your Mac to download it.";
+    get.addEventListener("click", async e => {
+      e.preventDefault();
+      const link = { title: "ibid", text: "ibid: highlight, underline and annotate any website", url: "https://tryibid.com" };
+      try {
+        if (navigator.share) await navigator.share(link);
+        else { await navigator.clipboard.writeText(link.url); $("cta").textContent = "Link copied"; setTimeout(() => $("cta").textContent = "Send to my Mac", 1800); }
+      } catch {}
+    });
+  }
 </script>
 <!-- Counts visits to the page, by country and where they came from, with no cookies (GoatCounter, the owner's
      account "tryibid", 2026-11-19; the numbers are at tryibid.goatcounter.com). Every visit counts as the one
