@@ -914,6 +914,13 @@
   addEventListener("keydown", e => { if (CHOOSING && !e.metaKey && !e.ctrlKey && !e.target.closest?.(".note") && +e.key >= 1 && +e.key <= Math.min(9, SETS.length)) choose(+e.key - 1); });
 
 </script>
+<!-- Counts visits to the page, by country and where they came from, with no cookies (GoatCounter, the owner's
+     account "tryibid", 2026-11-19; the numbers are at tryibid.goatcounter.com). Every visit counts as the one
+     page, whatever follows the "?", and pictures and tests made with ?do= or ?slow= aren't counted. -->
+<script>
+  window.goatcounter = { path: "/", no_onload: /[?&](do|slow)=/.test(location.search) };
+</script>
+<script data-goatcounter="https://tryibid.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="readers.js?2"></script>
 <script src="app.js?9"></script>
 </body>
