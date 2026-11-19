@@ -95,9 +95,8 @@
     lift.insertBefore(ghost, how == "cross" || how == "out" ? sheet.nextSibling : sheet);
     ghost.scrollTop = y;
     swap();
-    // Highlights itself comes and goes by fading over the page, on the app's spring for such things
-    // (`Animation.note`, .smooth(duration: 0.24), which takes about twice that to settle): "in" fades what
-    // arrives in over what was there, "out" fades what was there off what arrives.
+    // "in" and "out" fade one over the other on the app's spring for small things (`Animation.note`). Nothing
+    // uses them now: the owner asked for Highlights to come and go by the same step as everything else.
     const fade = how == "in" || how == "out", time = (fade ? 480 : 240) * SLOW;
     const [g, s] = how == "open" ? [.97, 1.03] : how == "close" ? [1.03, .97] : [1, 1];
     const o = { duration: time, easing: fade ? getComputedStyle(win).getPropertyValue("--spring").trim() || "ease-out" : "cubic-bezier(.32,.72,0,1)", fill: "both" };
@@ -286,7 +285,7 @@
     done();
     tops.set(pages[current], sheet.scrollTop);
     tuck(false);
-    blend("in", () => {
+    blend("open", () => {
       inH = true; came = null;
       turn(false, true);
       if (hkey && marks(hkey).length) { render(hkey); put(hpage, places[hkey]); stack(); }
@@ -423,7 +422,7 @@
   win.addEventListener("click", e => { if (e.detail) e.target.closest?.(".gb, .bub, .lvl")?.blur(); });
   br.addEventListener("click", () => inH ? toWebsite() : came && came.i == current ? backToPage() : toggleReader());
   tl.addEventListener("click", backToList);
-  glyphs[1].addEventListener("click", () => { closePop(); inH ? blend("out", () => leave()) : showHighlights(); });
+  glyphs[1].addEventListener("click", () => { closePop(); inH ? blend("close", () => leave()) : showHighlights(); });
   // Choosing a tab closes Highlights; going to another tab forgets the page a website was opened from.
   const open0 = open;
   open = i => {
