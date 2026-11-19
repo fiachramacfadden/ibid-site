@@ -929,16 +929,16 @@
 
   // Where the name goes (see `.mast`): 1 is the page as it was, with no name.
   const NAMES = 12, named = new URLSearchParams(location.search).get("n");
-  function name(n) {
+  function wordmark(n) {
     document.body.dataset.n = n;
     $("cta").textContent = n == 10 ? "Download ibid" : "Download for Mac";
     document.querySelector(".small").textContent = n == 11 ? "ibid for Mac · Free · macOS 15.2 or later" : "Free · macOS 15.2 or later";
     if (!(named || location.protocol == "file:" || /^(localhost|127\.)/.test(location.hostname))) return;
-    $("pick").innerHTML = Array.from({ length: NAMES }, (_, i) => `<button aria-pressed="${i + 1 == n}" onclick="name(${i + 1})">${i + 1}</button>`).join("");
+    $("pick").innerHTML = Array.from({ length: NAMES }, (_, i) => `<button aria-pressed="${i + 1 == n}" onclick="wordmark(${i + 1})">${i + 1}</button>`).join("");
     history.replaceState(null, "", "?n=" + n);
     corners();
   }
-  name(Math.min(NAMES, Math.max(1, +named || 1)));
+  wordmark(Math.min(NAMES, Math.max(1, +named || 1)));
 </script>
 <script src="readers.js?2"></script>
 <script src="app.js?6"></script>
