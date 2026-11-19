@@ -317,7 +317,7 @@
   body.l-word .brand img { display: none; }
 
   .pick:has(button:only-child) { display: none; }
-  .pick { position: fixed; left: 12px; bottom: 12px; z-index: 10; display: flex; gap: 5px; align-items: center; font: 600 12px var(--sans); }
+  .pick { position: fixed; left: 12px; bottom: 12px; z-index: 10; display: flex; flex-wrap: wrap; max-width: 460px; gap: 5px; align-items: center; font: 600 12px var(--sans); }
   .pick button { width: 25px; height: 25px; border-radius: 13px; border: 1px solid rgba(0,0,0,.18); background: #fff; }
   .pick button[aria-pressed="true"] { background: #1e1e1e; color: #fff; }
 </style>
@@ -488,10 +488,46 @@
   // asked for Noema, the second tab, to be swapped for Longreads (the website of that name: a Guardian long read,
   // Quanta and Aeon were offered by mistake and rejected, commit 09643c7). Two Longreads originals are being chosen
   // between, each with the Times note's link going to it.
-  const brain = (words, k) => ({ brain: [["plugged in his brain", "honey", 0, words, k], ...NOTED.brain.slice(1)] });
+  // Fifteen more sets of annotations for each Longreads piece, after the owner found the first ones boring
+  // (2026-11-19): circles 1 to 15 are the reading essay, 16 to 30 the murderer piece.
+  const READING = [
+    [["We devour; we gulp.", "honey", 0, "i inhale. then remember nothing"], ["takes it back for maybe the fourth time", "", 1], ["Bad title! I hate titles that are unmemorable strings of nonspecific words!", "rose", 0, "ian mcewan catching strays in a parenthesis"]],
+    [["I would say that I’m still not a monogamous reader.", "honey", 0, "my nightstand is a crime scene"], ["boy do I have the book for you", "sky", 0, "did not need convincing but ok"], ["never quite seizing priority", "", 1, "poor Banville. always the bridesmaid"]],
+    [["my mom called the stack of books on my nightstand a “smorgasbord.”", "honey", 0, "mine called it a fire hazard"], ["The current count of books I’m partway through is eighteen", "", 1, "EIGHTEEN"], ["before Libby, the public library app, takes it back", "sage", 0, "libby shows no mercy"]],
+    [["I like to “graze” as a reader", "honey", 0, "i graze, then fall asleep on page 4"], ["one of the most odious people on the planet", "rose", 0, "tell us how you really feel"], ["that is very long and that I ended up (happily) buying", "", 1]],
+    [["I play the field; I read around.", "honey", 0, "would wear this on a t-shirt"], ["and two audiobooks", "sky", 0, "audiobooks count. i will not be taking questions"], ["Bad title! I hate titles that are unmemorable strings of nonspecific words!", "", 1], ["felt like I’d woken up in a bus stop, disheveled and hungover", "iris", 0, "the only honest review of Twilight"]],
+    [["People use a lot of food language when they talk about reading.", "sage", 0, "“voracious.” “digest.” she’s right"], ["I play the field; I read around.", "", 1], ["takes it back for maybe the fourth time", "rose", 0, "it’s a short book. she says so herself"]],
+    [["I play the field; I read around.", "honey", 0, "feeling very seen and slightly judged"], ["The current count of books I’m partway through is eighteen", "", 1], ["Somehow I’d forgotten libraries existed", "sky", 0, "free books. we all just forgot about free books"]],
+    [["Romantic metaphors, too, come in handy", "iris", 0, "i’ve ghosted so many novels"], ["The current count of books I’m partway through is eighteen", "", 1], ["takes it back for maybe the fourth time", "honey", 0, "the walk of shame, but for a library app"]],
+    [["We devour; we gulp.", "", 1], ["I would say that I’m still not a monogamous reader.", "honey", 0, "it’s not cheating if they’re all on the same nightstand"], ["Bad title! I hate titles that are unmemorable strings of nonspecific words!", "rose", 0, "she’s right, i’ve already forgotten it"]],
+    [["my mom called the stack of books on my nightstand a “smorgasbord.”", "honey", 0, "moms always have a word for it"], ["if you need to be convinced that Prince Andrew is one of the most odious people on the planet, boy do I have the book for you", "sky", 0, "best book review i’ve read all year"], ["never quite seizing priority", "", 1], ["I read all the Twilight books in rapid succession", "rose", 0, "no judgement. ok a little"]],
+    [["I play the field; I read around.", "honey", 0, "eighteen though?? that’s not a field, that’s a county"], ["The current count of books I’m partway through is eighteen", "", 1], ["a gift from my past self", "sage", 0, "past me only ever leaves dishes"]],
+    [["dipping in and out according to my mood", "honey", 0, "my mood is usually “phone”"], ["Bad title! I hate titles that are unmemorable strings of nonspecific words!", "", 1], ["I’m in a race to finish Venetian Vespers by John Banville", "rose", 0, "reading as a competitive sport against an app"]],
+    [["I like to “graze” as a reader, moving through multiple books simultaneously", "honey", 0, "this is just tabs. she has 18 tabs open"], ["and two audiobooks", "", 1], ["boy do I have the book for you", "rose", 0, "ok sold"]],
+    [["I play the field; I read around.", "", 1], ["The current count of books I’m partway through is eighteen", "honey", 0, "i’m at four and i feel unwell"], ["Bad title! I hate titles that are unmemorable strings of nonspecific words!", "sky", 0, "what we can know: she hates it"]],
+    [["We devour; we gulp.", "honey", 0, "i mostly nibble and wander off"], ["I would say that I’m still not a monogamous reader.", "", 1], ["takes it back for maybe the fourth time", "sage", 0, "libby said you had your chance"]],
+  ];
+  const MURDER = [
+    [["Bloody well done, my friend! I am super proud.", "honey", 0, "wholesome!! (keep reading)"], ["felt profoundly weird", "", 1], ["partly through a filing error and partly through my own boredom", "sky", 0, "how every bad idea starts"]],
+    [["Bloody well done, my friend!", "honey", 0], ["bellowed through the car’s loudspeaker", "rose", 0, "with the kids in the car. on speaker."], ["What kind of convicted murderer has his own website?", "", 1, "with a contact page, apparently"]],
+    [["I was stunned.", "honey", 0, "i mean. yeah"], ["with such sincerity", "", 1], ["he’d called from Wealstun Prison", "sky", 0, "his nicest review came from prison"]],
+    [["Bloody well done, my friend! I am super proud.", "honey", 0, "his most supportive reader is doing life"], ["the highlight of my writing career", "", 1], ["partly through my own boredom", "sage", 0, "relatable origin story"]],
+    [["On a sunny Saturday morning earlier this year", "sky", 0, "nothing good ever follows a sunny saturday morning"], ["Bloody well done, my friend! I am super proud.", "", 1], ["felt profoundly weird", "rose", 0, "understatement of the year"]],
+    [["Bloody well done, my friend! I am super proud.", "honey", 0, "ok who is this lovely man"], ["serving a life sentence", "rose", 0, "oh."], ["What kind of convicted murderer has his own website?", "", 1]],
+    [["I’ve just been flicking through The Times", "honey", 0, "wait for where he’s flicking through it"], ["felt profoundly weird", "", 1], ["partly through a filing error and partly through my own boredom", "sky", 0, "went in for naval records, came out with a pen pal"]],
+    [["an upbeat voice with a north of England accent", "sage", 0, "reading the whole voicemail in a Yorkshire accent now"], ["Bloody well done, my friend!", "", 1], ["What kind of convicted murderer has his own website?", "rose", 0, "and is it better than mine"]],
+    [["the highlight of my writing career", "honey", 0, "and THIS is how he found out"], ["with such sincerity", "rose", 0, "the sincerity is the unsettling part"], ["partly through a filing error", "", 1]],
+    [["Bloody well done, my friend! I am super proud.", "honey", 0, "my friends don’t even text back"], ["felt profoundly weird", "sky", 0], ["For an extra 26 pence, I could include a response sheet", "", 1, "26p. bargain"]],
+    [["Pressing play impatiently", "honey", 0, "never play a voicemail on speaker"], ["Bloody well done, my friend! I am super proud.", "", 1], ["I found myself looking at recent criminal case files rather than the wartime naval intelligence records I had come for", "sky", 0, "procrastination, but make it a murder case"]],
+    [["Bloody well done, my friend! I am super proud.", "honey", 0, "lovely voicemail. then paragraph two happens"], ["felt profoundly weird", "", 1], ["would rather use ten words when one would suffice", "sage", 0, "everyone knows a Jane"]],
+    [["I was stunned.", "", 1], ["Being named The Times Book of the Week", "honey", 0, "congrats! awkward messenger though"], ["What kind of convicted murderer has his own website?", "sky", 0, "the question that launched 6,000 words"]],
+    [["Bloody well done, my friend! I am super proud.", "honey", 0, "“super proud” is what got me"], ["felt profoundly weird", "", 1], ["Jane did not look at the road nearly as much as I would have liked", "rose", 0, "scarier than the prison, honestly"]],
+    [["bellowed through the car’s loudspeaker", "honey", 0, "the daughters heard all of this btw"], ["felt profoundly weird", "sky", 0, "british for “absolutely horrifying”"], ["As far as I was aware, I had never met a convicted murderer.", "rose", 0, "“as far as I was aware” is doing a lot of work"]],
+  ];
+  const brain = (words, k, rows) => ({ brain: [["plugged in his brain", "honey", 0, words, k], ...NOTED.brain.slice(1)], [k]: rows });
   const SETS = [
-    { tabs: ["brain", "reading", "asterisk"], alt: brain("unrelated, but this one’s about reading eighteen books at once:", "reading") },
-    { tabs: ["brain", "murder", "asterisk"], alt: brain("unrelated, but this one is wild:", "murder") },
+    ...READING.map(rows => ({ tabs: ["brain", "reading", "asterisk"], alt: brain("unrelated, but this one’s about reading eighteen books at once:", "reading", rows) })),
+    ...MURDER.map(rows => ({ tabs: ["brain", "murder", "asterisk"], alt: brain("unrelated, but this one is wild:", "murder", rows) })),
   ];
   // Each variation's words, type and layout: f the face, w its weight, t its letter spacing, s its size;
   // k its layout: "split" (headline left, button right), "left", "two" (one sentence in two tones), "grey" or "honey" (a panel).
@@ -708,7 +744,7 @@
   // A link in a note: the linked website's picture, title and name, and a tick for each highlight already on it.
   // Pressing the picture or title goes to that website's tab; pressing the ticks unfolds its highlights.
   function card(a, k) {
-    const site = SITES[k], marks = NOTED[k], tint = m => m[1] ? INKS[m[1]] : "#E5342B";
+    const site = SITES[k], marks = SETS[set].alt?.[k] || NOTED[k], tint = m => m[1] ? INKS[m[1]] : "#E5342B";
     const c = document.createElement("span");
     c.className = "card";
     c.innerHTML = `<span class="cgo"><img src="card-${k}.jpg" alt=""><span class="ct">${site.head}</span><span class="cs"><i style="background:${site.colour}">${site.fav}</i>${site.name}</span></span>`
@@ -800,6 +836,7 @@
   addEventListener("keydown", e => { if (e.key == "Escape") done(); });
 
   // ---------- The sets ----------
+  let began = false;
   function choose(n) {
     done();
     set = n;
@@ -816,7 +853,8 @@
       t.addEventListener("pointerdown", () => open(+t.dataset.i));
       t.addEventListener("click", () => open(+t.dataset.i));
     });
-    open(Math.min(2, Math.max(0, (+new URLSearchParams(location.search).get("tab") || 1) - 1)));
+    open(began ? current : Math.min(2, Math.max(0, (+new URLSearchParams(location.search).get("tab") || 1) - 1)));
+    began = true;
     // The circles show only on this Mac or when the address asks for a set (?a=2): never to a visitor of the site itself.
     if (!CHOOSING) return;
     $("pick").innerHTML = SETS.map((_, i) => `<button aria-pressed="${i == n}" onclick="choose(${i})">${i + 1}</button>`).join("");
