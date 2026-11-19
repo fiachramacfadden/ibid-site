@@ -21,7 +21,10 @@
   draw = () => {
     draw0();
     const W = sheet.offsetWidth, H = sheet.offsetHeight, r = 14 * W / 1228, a = fa.v, b = fb.v;
-    const corner = a < .5 || b < .5 ? `L${W - r} 0A${r} ${r} 0 0 1 ${W} ${r}` : `L${W - a} 0L${W} ${b}`;
+    // Along a turned corner the shape stops well inside the crease, under the page and its flap, so neither it
+    // nor its shadow shows there: the flap must look joined to the page, with nothing bright or dark between.
+    const in_ = 4 * W / 1228;
+    const corner = a < .5 || b < .5 ? `L${W - r} 0A${r} ${r} 0 0 1 ${W} ${r}` : `L${W - a - in_} 0L${W} ${b + in_}`;
     shadow.firstChild.style.clipPath = `path("M0 ${H}L0 ${r}A${r} ${r} 0 0 1 ${r} 0${corner}L${W} ${H}Z")`;
   };
   draw();
