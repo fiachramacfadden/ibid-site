@@ -76,7 +76,7 @@
 .app article h1, .app article h2 { font-size: 1.32em; }
 .app article h3 { font-size: 1.14em; }
 .app article h4, .app article h5, .app article h6 { font-size: 1em; }
-.app article a { color: inherit; text-decoration: underline; text-decoration-color: rgba(0,0,0,.3); text-decoration-thickness: calc(1 * var(--u)); text-underline-offset: .16em; }
+.app article a, .app article .a { color: inherit; text-decoration: underline; text-decoration-color: rgba(0,0,0,.3); text-decoration-thickness: calc(1 * var(--u)); text-underline-offset: .16em; }
 .app article blockquote { margin: 1.4em 0; padding-left: 1.1em; border-left: calc(2 * var(--u)) solid rgba(0,0,0,.16); color: #474747; }
 .app article ul, .app article ol { margin: 0 0 1.05em; padding-left: 1.4em; }
 .app article li { margin-bottom: .4em; position: relative; }
