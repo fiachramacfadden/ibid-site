@@ -23,6 +23,7 @@
   }
   * { box-sizing: border-box; margin: 0; }
   html, body { height: 100%; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body { background: #fff; color: var(--ink); font-family: var(--hf, var(--sans)); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow: hidden; }
   button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
   p { text-wrap: pretty; }
@@ -332,23 +333,21 @@
   /* ---------- On a phone ----------
      ibid is a Mac app, so a phone can't download it: the page says so, and the button sends the page's address to
      the visitor's own Mac instead (the phone's share sheet: AirDrop, Messages, Mail), which is the usual way to
-     handle it. The window is shown close up, on the article's own column, with the row of tabs left out since
-     there's no room for it; the page inside still scrolls, with its highlights. Notes lie beyond the edge. */
+     handle it. The whole window is shown, as on a Mac, only smaller: its row of tabs, the page, its notes and the
+     address at its foot, rising from the bottom of the screen (the owner found the close-up on the article's
+     column didn't look like the browser, 2026-11-24). */
   @media (max-width: 640px) {
-    :root { --w: 190vw; }
+    :root { --w: calc(100vw - 32px); }
     main { min-height: 0; }
-    body.left .words { width: auto; margin: 0; padding: clamp(40px, 7svh, 64px) 22px 0; }
+    body.left .words { width: auto; margin: 0; padding: clamp(36px, 6svh, 60px) 22px 0; }
     .mast { margin-bottom: 14px; }
-    body.two h1, body.two .lede { font-size: 25px; white-space: normal; max-width: none; }
-    body.left .act { flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 20px; }
+    .bigicon { width: 56px; height: 56px; }
+    body.two h1, body.two .lede { font-size: 27px; line-height: 1.14; white-space: normal; max-width: none; }
+    body.left .act { flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 22px; }
     body.left .get { height: 46px; font-size: 16px; padding: 0 22px; }
     .small { font-size: 13.5px; line-height: 1.4; }
     .hello { right: 22px; top: 18px; }
-    .stage { padding: 0; margin-top: 26px; }
-    .ibid { margin-left: calc((100vw - var(--w)) / 2); }
-    .row { display: none; }
-    .page .note { display: none; }
-    .bub, .lvl { display: none; }
+    .stage { padding: 0 16px; margin-top: 30px; min-height: 180px; }
   }
 </style>
 <link rel="stylesheet" href="app.css?8">
